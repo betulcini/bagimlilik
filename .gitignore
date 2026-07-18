@@ -6,6 +6,10 @@ node_modules/
 /.svelte-kit
 /package
 
+# cloudflare wrangler
+.wrangler/
+.dev.vars
+
 # ortam değişkenleri (gizli anahtarlar burada — asla commit'leme)
 .env
 .env.*

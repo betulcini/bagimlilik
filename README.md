@@ -46,6 +46,20 @@ supabase/
   schema.sql               → tüm tablo tanımları + RLS politikaları
 ```
 
+## Cloudflare'e deploy etme
+
+Cloudflare artık siteleri "Pages" yerine "Workers" akışından deploy ediyor (panelde ayrı bir "Pages" sekmesi yok). Adımlar:
+
+1. Cloudflare panelinde **Workers & Pages > Create application**'a gir.
+2. **"Import a repository"** (ya da "Connect to Git") seçeneğini bul, GitHub hesabını bağla, `bagimlilik` reposunu seç. **"Create Worker" / "Hello World" gibi şablonlara tıklama** — mutlaka repo import akışını kullan.
+3. Build ayarlarında:
+   - **Build command**: `npm run build`
+   - **Deploy command**: `npx wrangler deploy` (bu otomatik gelmiş olabilir, doğruysa dokunma)
+4. **Environment variables** kısmına `PUBLIC_SUPABASE_URL` ve `PUBLIC_SUPABASE_ANON_KEY`'i ekle.
+5. **Save and Deploy**.
+
+Bu proje artık `@sveltejs/adapter-cloudflare` ve `wrangler.jsonc` ile Cloudflare Workers'a uygun şekilde yapılandırılmış durumda — `npm run build` çalıştığında Cloudflare'in beklediği formatta bir worker üretiyor.
+
 ## Sıradaki adımlar (birlikte kodlanacak)
 1. Landing sayfası
 2. Kayıt / giriş sayfaları
