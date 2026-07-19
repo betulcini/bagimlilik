@@ -6,6 +6,7 @@
 	import { getHouseItems, getUserHouse, purchaseItem, placeItem, pickUpItem } from '$lib/supabase/house';
 	import { getBonusBakiye } from '$lib/supabase/coins';
 	import OdaGorunumu from '$components/ev/OdaGorunumu.svelte';
+	import EsyaIkon from '$components/ev/EsyaIkon.svelte';
 
 	let habit = null;
 	let items = [];
@@ -89,7 +90,7 @@
 		}
 	}
 
-	const itemEmoji = { zemin: '🟪', bitki: '🪴', mobilya: '🪑', dekor: '🖼️' };
+	// eşya ikonları artık EsyaIkon.svelte içinde (emoji yerine SVG, cihazdan bağımsız görünür)
 </script>
 
 <svelte:head>
@@ -133,7 +134,7 @@
 								class:selected={seçiliEnvanterId === uh.id}
 								on:click={() => envanterÖğesineTıkla(uh)}
 							>
-								<span>{itemEmoji[uh.house_items?.kategori] ?? '🎁'}</span>
+								<svg width="18" height="18" viewBox="0 0 24 24"><EsyaIkon ref={uh.house_items?.görsel_referans} /></svg>
 								{uh.house_items?.ad}
 							</button>
 						{/each}
@@ -148,7 +149,7 @@
 						{@const sahip = sahipOlunanItemIdleri.has(item.id)}
 						{@const kilitli = gün < item.gerekli_gün_sayısı}
 						<div class="shop-item" class:nadir={item.nadir_mi}>
-							<span class="shop-emoji">{itemEmoji[item.kategori] ?? '🎁'}</span>
+							<svg class="shop-emoji" width="26" height="26" viewBox="0 0 24 24"><EsyaIkon ref={item.görsel_referans} /></svg>
 							<div class="shop-info">
 								<span class="shop-name">
 									{item.ad}

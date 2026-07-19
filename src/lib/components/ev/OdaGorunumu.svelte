@@ -1,5 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import EsyaIkon from './EsyaIkon.svelte';
 
 	export let yerleşmişler = [];
 	export let readonly = false;
@@ -10,8 +11,6 @@
 	const TILE_W = 74;
 	const TILE_H = 37;
 	const WALL_H = 92;
-
-	const itemEmoji = { zemin: '🟪', bitki: '🪴', mobilya: '🪑', dekor: '🖼️' };
 
 	function köşe(c, r) {
 		return { x: (c - r) * (TILE_W / 2), y: (c + r) * (TILE_H / 2) };
@@ -76,9 +75,9 @@
 			on:click={() => !readonly && dispatch('itemClick', uh)}
 		>
 			<circle r="17" class="item-badge-bg" />
-			<text text-anchor="middle" dominant-baseline="central" font-size="19">
-				{itemEmoji[uh.house_items?.kategori] ?? '🎁'}
-			</text>
+			<svg x="-11" y="-11" width="22" height="22" viewBox="0 0 24 24">
+				<EsyaIkon ref={uh.house_items?.görsel_referans} />
+			</svg>
 		</g>
 	{/each}
 </svg>
