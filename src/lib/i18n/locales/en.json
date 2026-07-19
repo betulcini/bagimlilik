@@ -114,7 +114,7 @@
 	},
 	"cihazlar": {
 		"baslik": "My Devices",
-		"aciklama": "Pair your own smart plug here. It cuts power to physically shut down your computer/screen.",
+		"aciklama": "Pair your device here.",
 		"yeni_cihaz": "Add New Device",
 		"cihaz_adi": "Device name",
 		"cihaz_adi_placeholder": "e.g. Computer Plug",

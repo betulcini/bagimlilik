@@ -115,7 +115,7 @@
 	},
 	"cihazlar": {
 		"baslik": "Cihazlarım",
-		"aciklama": "Kendi yaptığın akıllı prizi buradan eşleştir. Prizin fişi keser, bilgisayarı/ekranı fiziksel olarak kapatır.",
+		"aciklama": "Cihazını buradan eşleştir.",
 		"yeni_cihaz": "Yeni Cihaz Ekle",
 		"cihaz_adi": "Cihaz adı",
 		"cihaz_adi_placeholder": "örn. Bilgisayar Prizi",
