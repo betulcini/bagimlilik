@@ -5,6 +5,7 @@
 	import { getActiveHabit, createHabit, recordRelapse, parsePgIntervalToSeconds } from '$lib/supabase/habits';
 	import { getTodayCheckin, addCheckin } from '$lib/supabase/checkins';
 	import { getDavetProfil, getBonusBakiye, anasayfaBonusuVerVarsaGerek, ANASAYFA_BONUS } from '$lib/supabase/coins';
+	import { nükstePrizleriKapat } from '$lib/supabase/devices';
 
 	let habit = null;
 	let loadingHabit = true;
@@ -91,6 +92,7 @@
 			nüksModalAçık = false;
 			nüksNotu = '';
 			bugünCheckin = null;
+			await nükstePrizleriKapat($user.id);
 		} catch (e) {
 			errorMsg = e.message;
 		} finally {

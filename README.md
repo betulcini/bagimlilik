@@ -12,6 +12,8 @@ Supabase tarafında `supabase/schema.sql` dosyasını SQL Editor'de çalıştır
 
 **Yeni kurulum yapıyorsan** yukarıdakiler yeterli (davet sistemi zaten `schema.sql`'in içinde). **Daha önce `schema.sql`'i eski haliyle çalıştırdıysan**, ek olarak `supabase/referral-ve-bonus.sql` dosyasını da çalıştır — bu, mevcut tablolarına davet kodu / bonus coin desteği ekler ve önceden kayıt olmuş kullanıcılara geriye dönük davet kodu + coin satırı atar.
 
+Son olarak `supabase/cihazlar.sql` dosyasını çalıştır — akıllı priz (ESP32) eşleştirme sistemi için gereken tablo ve fonksiyonlar kurulur.
+
 ```bash
 npm run dev
 ```
@@ -44,6 +46,8 @@ src/
     (app)/mesajlar/        → motivasyon mesajları
 supabase/
   schema.sql               → tüm tablo tanımları + RLS politikaları
+firmware/
+  esp32-akilli-priz/       → cihaz elindeyken ESP32'ye yükleyeceğin örnek Arduino kodu
 ```
 
 ## Cloudflare'e deploy etme

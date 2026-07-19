@@ -4,6 +4,7 @@
 		"ev": "Evim",
 		"kesif": "Keşif",
 		"mesajlar": "Mesajlar",
+		"cihazlar": "Cihazlarım",
 		"cikis": "Çıkış Yap"
 	},
 	"landing": {
@@ -111,5 +112,25 @@
 		"mesaj_placeholder": "Bir motivasyon mesajı yaz...",
 		"gonder": "Gönder",
 		"sohbet_secilmedi": "Mesajlaşmak için soldan bir sohbet seç."
+	},
+	"cihazlar": {
+		"baslik": "Cihazlarım",
+		"aciklama": "Kendi yaptığın akıllı prizi buradan eşleştir. Prizin fişi keser, bilgisayarı/ekranı fiziksel olarak kapatır.",
+		"yeni_cihaz": "Yeni Cihaz Ekle",
+		"cihaz_adi": "Cihaz adı",
+		"cihaz_adi_placeholder": "örn. Bilgisayar Prizi",
+		"ekle": "Ekle",
+		"cihaz_kodu": "Eşleştirme kodu",
+		"kod_aciklama": "Bu kodu ESP32 firmware koduna yapıştır — cihazın kimliğini bu kod belirliyor.",
+		"kopyala": "Kopyala",
+		"kopyalandi": "Kopyalandı!",
+		"cevrimici": "Çevrimiçi",
+		"cevrimdisi": "Çevrimdışı (hiç bağlanmamış ya da bağlantı kesilmiş)",
+		"fisi_kes": "Fişi Kes",
+		"fisi_ac": "Fişi Aç",
+		"sil": "Sil",
+		"nukste_otomatik": "Nüks ettiğimde bu cihazı otomatik kapat",
+		"cihaz_yok": "Henüz bir cihaz eklemedin.",
+		"firmware_bilgi": "Cihazı fiziksel olarak kurunca, projedeki /firmware/esp32-akilli-priz klasöründeki örnek kodu kullanabilirsin."
 	}
 }

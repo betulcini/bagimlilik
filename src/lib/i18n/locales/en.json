@@ -4,6 +4,7 @@
 		"ev": "My House",
 		"kesif": "Discover",
 		"mesajlar": "Messages",
+		"cihazlar": "My Devices",
 		"cikis": "Log Out"
 	},
 	"landing": {
@@ -110,5 +111,25 @@
 		"mesaj_placeholder": "Write a motivational message...",
 		"gonder": "Send",
 		"sohbet_secilmedi": "Select a conversation on the left to start messaging."
+	},
+	"cihazlar": {
+		"baslik": "My Devices",
+		"aciklama": "Pair your own smart plug here. It cuts power to physically shut down your computer/screen.",
+		"yeni_cihaz": "Add New Device",
+		"cihaz_adi": "Device name",
+		"cihaz_adi_placeholder": "e.g. Computer Plug",
+		"ekle": "Add",
+		"cihaz_kodu": "Pairing code",
+		"kod_aciklama": "Paste this code into the ESP32 firmware — it identifies your device.",
+		"kopyala": "Copy",
+		"kopyalandi": "Copied!",
+		"cevrimici": "Online",
+		"cevrimdisi": "Offline (never connected or lost connection)",
+		"fisi_kes": "Cut Power",
+		"fisi_ac": "Restore Power",
+		"sil": "Delete",
+		"nukste_otomatik": "Automatically cut this device on relapse",
+		"cihaz_yok": "You haven't added a device yet.",
+		"firmware_bilgi": "Once you build the physical device, use the example code in the project's /firmware/esp32-akilli-priz folder."
 	}
 }

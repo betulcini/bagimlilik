@@ -10,7 +10,8 @@
 		{ href: '/dashboard', key: 'nav.dashboard' },
 		{ href: '/ev', key: 'nav.ev' },
 		{ href: '/kesif', key: 'nav.kesif' },
-		{ href: '/mesajlar', key: 'nav.mesajlar' }
+		{ href: '/mesajlar', key: 'nav.mesajlar' },
+		{ href: '/cihazlar', key: 'nav.cihazlar' }
 	];
 
 	async function cikisYap() {
