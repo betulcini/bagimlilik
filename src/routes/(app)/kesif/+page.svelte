@@ -3,13 +3,17 @@
 	import { _ } from 'svelte-i18n';
 	import { user } from '$stores/user';
 	import { getDiğerProfiller, getTopluUserHouse } from '$lib/supabase/social';
+	import { getBasarimlar, getKullanıcıBasarımları } from '$lib/supabase/achievements';
 	import OdaGorunumu from '$components/ev/OdaGorunumu.svelte';
+	import RozetSatiri from '$components/rozet/RozetSatiri.svelte';
 
 	let profiller = [];
 	let evlerByUser = {};
 	let loading = true;
 	let errorMsg = '';
 	let seçiliProfil = null;
+	let rozetKataloglar = [];
+	let seçiliProfilRozetIdler = new Set();
 
 	onMount(async () => {
 		if (!$user) return;
@@ -21,12 +25,24 @@
 				(acc[uh.user_id] ??= []).push(uh);
 				return acc;
 			}, {});
+			rozetKataloglar = await getBasarimlar();
 		} catch (e) {
 			errorMsg = e.message;
 		} finally {
 			loading = false;
 		}
 	});
+
+	async function profilSeç(profil) {
+		seçiliProfil = profil;
+		seçiliProfilRozetIdler = new Set();
+		try {
+			const rozetler = await getKullanıcıBasarımları(profil.id);
+			seçiliProfilRozetIdler = new Set(rozetler.map((r) => r.achievement_id));
+		} catch (e) {
+			errorMsg = e.message;
+		}
+	}
 
 	function eşyaSayısı(profileId) {
 		return (evlerByUser[profileId] ?? []).filter((uh) => uh.konum_x !== -1).length;
@@ -56,13 +72,18 @@
 		<div class="room-card">
 			<OdaGorunumu yerleşmişler={(evlerByUser[seçiliProfil.id] ?? []).filter((uh) => uh.konum_x !== -1)} readonly />
 		</div>
+		{#if seçiliProfilRozetIdler.size > 0}
+			<div class="detay-rozetler">
+				<RozetSatiri kataloglar={rozetKataloglar} kazanılmışIdler={seçiliProfilRozetIdler} />
+			</div>
+		{/if}
 	</div>
 {:else if profiller.length === 0}
 	<p class="muted">{$_('kesif.bos')}</p>
 {:else}
 	<div class="gallery-grid">
 		{#each profiller as profil (profil.id)}
-			<button class="gallery-card" on:click={() => (seçiliProfil = profil)}>
+			<button class="gallery-card" on:click={() => profilSeç(profil)}>
 				<span class="avatar">{profil.kullanici_adi.slice(0, 1).toUpperCase()}</span>
 				<span class="gallery-isim">{profil.kullanici_adi}</span>
 				<span class="gallery-esya muted">{eşyaSayısı(profil.id)} {$_('kesif.esya_sayisi')}</span>
@@ -158,5 +179,10 @@
 	.room-card {
 		display: flex;
 		justify-content: center;
+	}
+	.detay-rozetler {
+		margin-top: 20px;
+		padding-top: 20px;
+		border-top: 1px solid var(--border);
 	}
 </style>

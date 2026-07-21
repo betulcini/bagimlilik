@@ -6,6 +6,8 @@
 	import { getTodayCheckin, addCheckin } from '$lib/supabase/checkins';
 	import { getDavetProfil, getBonusBakiye, anasayfaBonusuVerVarsaGerek, ANASAYFA_BONUS } from '$lib/supabase/coins';
 	import { nükstePrizleriKapat } from '$lib/supabase/devices';
+	import { getBasarimlar, getKullanıcıBasarımları, eksikRozetleriVer } from '$lib/supabase/achievements';
+	import RozetSatiri from '$components/rozet/RozetSatiri.svelte';
 
 	let habit = null;
 	let loadingHabit = true;
@@ -30,6 +32,11 @@
 	let nüksNotu = '';
 	let nüksKaydediliyor = false;
 
+	// rozetler
+	let rozetKataloglar = [];
+	let kazanılmışRozetIdler = new Set();
+	let yeniKazanılanRozetler = [];
+
 	// check-in
 	let bugünCheckin = null;
 	let seçiliMood = null;
@@ -45,6 +52,19 @@
 				habit = await getActiveHabit($user.id);
 				if (habit) {
 					bugünCheckin = await getTodayCheckin(habit.id);
+
+					const şimdikiGün = Math.max(
+						0,
+						Math.floor((Date.now() - new Date(habit.başlangıç_tarihi).getTime()) / 86400000)
+					);
+					rozetKataloglar = await getBasarimlar();
+					yeniKazanılanRozetler = await eksikRozetleriVer($user.id, şimdikiGün);
+					const kazanılmışlar = await getKullanıcıBasarımları($user.id);
+					kazanılmışRozetIdler = new Set(kazanılmışlar.map((k) => k.achievement_id));
+
+					if (yeniKazanılanRozetler.length > 0) {
+						setTimeout(() => (yeniKazanılanRozetler = []), 6000);
+					}
 				}
 				const profil = await getDavetProfil($user.id);
 				davetKodu = profil.davet_kodu;
@@ -258,6 +278,11 @@
 			{/if}
 		</section>
 
+		<section class="card rozet-card">
+			<h2 class="font-display">{$_('dashboard.rozetlerim')}</h2>
+			<RozetSatiri kataloglar={rozetKataloglar} kazanılmışIdler={kazanılmışRozetIdler} />
+		</section>
+
 		<section class="card davet-card">
 			<h2 class="font-display">{$_('dashboard.davet_baslik')}</h2>
 			<p class="muted">{$_('dashboard.davet_aciklama', { values: { bonus: 50 } })}</p>
@@ -269,6 +294,12 @@
 			</div>
 		</section>
 	</div>
+
+	{#if yeniKazanılanRozetler.length > 0}
+		<div class="rozet-toast">
+			🎉 {$_('dashboard.yeni_rozet')}: {yeniKazanılanRozetler.map((r) => r.ad).join(', ')}
+		</div>
+	{/if}
 
 	{#if nüksModalAçık}
 		<div class="modal-backdrop" on:click|self={() => (nüksModalAçık = false)}>
@@ -492,9 +523,11 @@
 	.davet-link-row {
 		display: flex;
 		gap: 10px;
+		flex-wrap: wrap;
 	}
 	.davet-link-row input {
 		flex: 1;
+		min-width: 0;
 		font-family: inherit;
 		font-size: 0.85rem;
 		padding: 10px 12px;
@@ -502,9 +535,46 @@
 		border: 1px solid var(--border);
 		background: var(--bg);
 		color: var(--text-muted);
+		text-overflow: ellipsis;
 	}
 	.davet-link-row .btn-primary {
 		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	@media (max-width: 480px) {
+		.davet-link-row {
+			flex-direction: column;
+		}
+		.davet-link-row input {
+			width: 100%;
+		}
+		.davet-link-row .btn-primary {
+			width: 100%;
+		}
+	}
+
+	.rozet-card h2 {
+		font-size: 1.2rem;
+		font-weight: 500;
+		margin: 0 0 16px;
+	}
+
+	.rozet-toast {
+		position: fixed;
+		bottom: 24px;
+		left: 50%;
+		transform: translateX(-50%);
+		background: var(--accent);
+		color: var(--bg-elevated);
+		padding: 14px 24px;
+		border-radius: 12px;
+		font-size: 0.9rem;
+		font-weight: 600;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+		z-index: 60;
+		max-width: 90vw;
+		text-align: center;
 	}
 
 	.modal-backdrop {

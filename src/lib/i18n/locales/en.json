@@ -75,7 +75,9 @@
 		"davet_baslik": "Invite a Friend",
 		"davet_aciklama": "You earn {bonus} coins for every friend who signs up with this link.",
 		"davet_kopyala": "Copy Link",
-		"davet_kopyalandi": "Copied!"
+		"davet_kopyalandi": "Copied!",
+		"rozetlerim": "My Badges",
+		"yeni_rozet": "You earned a new badge"
 	},
 	"ev": {
 		"bakiye": "Balance",

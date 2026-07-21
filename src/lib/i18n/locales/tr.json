@@ -76,7 +76,9 @@
 		"davet_baslik": "Arkadaşını Davet Et",
 		"davet_aciklama": "Bu linkle kayıt olan her arkadaşın için {bonus} coin kazanırsın.",
 		"davet_kopyala": "Linki Kopyala",
-		"davet_kopyalandi": "Kopyalandı!"
+		"davet_kopyalandi": "Kopyalandı!",
+		"rozetlerim": "Rozetlerim",
+		"yeni_rozet": "Yeni rozet kazandın"
 	},
 	"ev": {
 		"bakiye": "Bakiye",
