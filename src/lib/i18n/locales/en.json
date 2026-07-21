@@ -57,7 +57,7 @@
 		"en_uzun_seri": "Your longest streak",
 		"kazanilan_coin": "Coins earned",
 		"tasarruf": "Savings accumulated",
-		"nuks_buton": "I relapsed",
+		"nuks_buton": "I Broke My Streak",
 		"nuks_baslik": "Are you sure you want to reset the counter?",
 		"nuks_aciklama": "This resets your clean-day counter. Your longest streak is saved, and you can start again.",
 		"nuks_not": "What happened? (optional, visible only to you)",
@@ -112,7 +112,7 @@
 		"sohbet_yok": "No conversations yet. Pick a user or get an anonymous match.",
 		"mesaj_placeholder": "Write a motivational message...",
 		"gonder": "Send",
-		"sohbet_secilmedi": "Select a conversation on the left to start messaging."
+		"sohbet_secilmedi": "Select a conversation to start messaging."
 	},
 	"cihazlar": {
 		"baslik": "My Devices",

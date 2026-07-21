@@ -10,7 +10,7 @@
 
 <div class="page">
 	<header class="nav">
-		<span class="logo font-display">ev&nbsp;dön</span>
+		<span class="logo font-display">eve&nbsp;dön</span>
 		<div class="nav-actions">
 			<LangToggle />
 			<ThemeToggle />

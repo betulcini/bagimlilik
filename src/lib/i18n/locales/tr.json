@@ -58,7 +58,7 @@
 		"en_uzun_seri": "En uzun serin",
 		"kazanilan_coin": "Kazanılan coin",
 		"tasarruf": "Biriken tasarruf",
-		"nuks_buton": "Nüks ettim",
+		"nuks_buton": "Serimi Bozdum",
 		"nuks_baslik": "Sayacı sıfırlamak istediğine emin misin?",
 		"nuks_aciklama": "Bu, temiz gün sayacını sıfırlar. En uzun serin kaydedilir, yeniden başlayabilirsin.",
 		"nuks_not": "Ne oldu? (opsiyonel, sadece sana görünür)",
@@ -113,7 +113,7 @@
 		"sohbet_yok": "Henüz hiçbir sohbetin yok. Bir kullanıcı seç ya da anonim eşleş.",
 		"mesaj_placeholder": "Bir motivasyon mesajı yaz...",
 		"gonder": "Gönder",
-		"sohbet_secilmedi": "Mesajlaşmak için soldan bir sohbet seç."
+		"sohbet_secilmedi": "Mesajlaşmak için bir sohbet seç."
 	},
 	"cihazlar": {
 		"baslik": "Cihazlarım",

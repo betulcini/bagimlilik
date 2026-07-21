@@ -21,7 +21,7 @@
 </script>
 
 <header class="app-nav">
-	<a href="/dashboard" class="logo font-display">ev&nbsp;dön</a>
+	<a href="/dashboard" class="logo font-display">eve&nbsp;dön</a>
 
 	<nav class="links">
 		{#each links as link}

@@ -53,7 +53,7 @@
 
 <div class="auth-page">
 	<div class="auth-topbar">
-		<a href="/" class="logo font-display">ev&nbsp;dön</a>
+		<a href="/" class="logo font-display">eve&nbsp;dön</a>
 		<div class="auth-toggles">
 			<LangToggle />
 			<ThemeToggle />
