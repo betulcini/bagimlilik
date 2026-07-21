@@ -5,6 +5,7 @@
 		"kesif": "Keşif",
 		"mesajlar": "Mesajlar",
 		"cihazlar": "Cihazlarım",
+		"rapor": "Rapor",
 		"cikis": "Çıkış Yap"
 	},
 	"landing": {
@@ -113,7 +114,10 @@
 		"sohbet_yok": "Henüz hiçbir sohbetin yok. Bir kullanıcı seç ya da anonim eşleş.",
 		"mesaj_placeholder": "Bir motivasyon mesajı yaz...",
 		"gonder": "Gönder",
-		"sohbet_secilmedi": "Mesajlaşmak için bir sohbet seç."
+		"sohbet_secilmedi": "Mesajlaşmak için bir sohbet seç.",
+		"engelle": "Engelle",
+		"engellenenler": "Engellenenler",
+		"engeli_kaldir": "Kaldır"
 	},
 	"cihazlar": {
 		"baslik": "Cihazlarım",
@@ -134,5 +138,19 @@
 		"nukste_otomatik": "Nüks ettiğimde bu cihazı otomatik kapat",
 		"cihaz_yok": "Henüz bir cihaz eklemedin.",
 		"firmware_bilgi": "Cihazı fiziksel olarak kurunca, projedeki /firmware/esp32-akilli-priz klasöründeki örnek kodu kullanabilirsin."
+	},
+	"rapor": {
+		"baslik": "Gelişim Raporum",
+		"aciklama": "Check-in geçmişin, ruh halin ve seri bozma sayın burada.",
+		"habit_yok": "Rapor görebilmen için önce bir alışkanlık başlatman gerekiyor.",
+		"haftalik": "Haftalık",
+		"aylik": "Aylık",
+		"checkin_orani": "Check-in oranı",
+		"ortalama_mood": "Ortalama ruh hali",
+		"seri_bozma": "Seri bozma sayısı",
+		"mood_grafigi": "Ruh Hali Grafiği",
+		"checkin_yok": "check-in yok",
+		"nuks_gecmisi": "Seri Bozma Geçmişi",
+		"tetikleyici_notlari": "Tetikleyici Notları"
 	}
 }

@@ -12,7 +12,7 @@ Supabase tarafında `supabase/schema.sql` dosyasını SQL Editor'de çalıştır
 
 **Yeni kurulum yapıyorsan** yukarıdakiler yeterli (davet sistemi zaten `schema.sql`'in içinde). **Daha önce `schema.sql`'i eski haliyle çalıştırdıysan**, ek olarak `supabase/referral-ve-bonus.sql` dosyasını da çalıştır — bu, mevcut tablolarına davet kodu / bonus coin desteği ekler ve önceden kayıt olmuş kullanıcılara geriye dönük davet kodu + coin satırı atar.
 
-Son olarak `supabase/cihazlar.sql` dosyasını çalıştır — akıllı priz (ESP32) eşleştirme sistemi için gereken tablo ve fonksiyonlar kurulur. Ardından `supabase/basarimlar.sql` dosyasını çalıştır — rozet/başarım kataloğu (24 saat, 3 gün, 1 hafta, 1 ay, 3 ay, 6 ay, 1 yıl) eklenir.
+Son olarak `supabase/cihazlar.sql` dosyasını çalıştır — akıllı priz (ESP32) eşleştirme sistemi için gereken tablo ve fonksiyonlar kurulur. Ardından `supabase/basarimlar.sql` dosyasını çalıştır — rozet/başarım kataloğu (24 saat, 3 gün, 1 hafta, 1 ay, 3 ay, 6 ay, 1 yıl) eklenir. Son olarak `supabase/engelleme.sql` dosyasını çalıştır — kullanıcı engelleme sistemi kurulur (mesajlaşma ve anonim eşleştirmede engellenen kullanıcılar hariç tutulur).
 
 ```bash
 npm run dev

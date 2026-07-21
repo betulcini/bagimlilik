@@ -5,6 +5,7 @@
 		"kesif": "Discover",
 		"mesajlar": "Messages",
 		"cihazlar": "My Devices",
+		"rapor": "Report",
 		"cikis": "Log Out"
 	},
 	"landing": {
@@ -112,7 +113,10 @@
 		"sohbet_yok": "No conversations yet. Pick a user or get an anonymous match.",
 		"mesaj_placeholder": "Write a motivational message...",
 		"gonder": "Send",
-		"sohbet_secilmedi": "Select a conversation to start messaging."
+		"sohbet_secilmedi": "Select a conversation to start messaging.",
+		"engelle": "Block",
+		"engellenenler": "Blocked",
+		"engeli_kaldir": "Unblock"
 	},
 	"cihazlar": {
 		"baslik": "My Devices",
@@ -133,5 +137,19 @@
 		"nukste_otomatik": "Automatically cut this device on relapse",
 		"cihaz_yok": "You haven't added a device yet.",
 		"firmware_bilgi": "Once you build the physical device, use the example code in the project's /firmware/esp32-akilli-priz folder."
+	},
+	"rapor": {
+		"baslik": "My Progress Report",
+		"aciklama": "Your check-in history, mood, and relapse count are here.",
+		"habit_yok": "You need to start a habit first to see a report.",
+		"haftalik": "Weekly",
+		"aylik": "Monthly",
+		"checkin_orani": "Check-in rate",
+		"ortalama_mood": "Average mood",
+		"seri_bozma": "Relapse count",
+		"mood_grafigi": "Mood Chart",
+		"checkin_yok": "no check-in",
+		"nuks_gecmisi": "Relapse History",
+		"tetikleyici_notlari": "Trigger Notes"
 	}
 }

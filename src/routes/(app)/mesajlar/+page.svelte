@@ -5,6 +5,7 @@
 	import { getActiveHabit } from '$lib/supabase/habits';
 	import { getDiğerProfiller, getProfillerByIds } from '$lib/supabase/social';
 	import { getMesajlar, mesajGönder, anonimEşleş } from '$lib/supabase/messages';
+	import { getEngellenenler, engelle, engelKaldır } from '$lib/supabase/blocks';
 
 	let habit = null;
 	let mesajlar = [];
@@ -17,6 +18,8 @@
 	let gönderiliyor = false;
 	let errorMsg = '';
 	let mesajListesiEl;
+	let engellenenIdler = new Set();
+	let engellenenlerAçık = false;
 
 	onMount(async () => {
 		if (!$user) return;
@@ -27,6 +30,14 @@
 			const diğerIdler = [...new Set(mesajlar.map((m) => (m.gönderen_id === $user.id ? m.alıcı_id : m.gönderen_id)))];
 			const profiller = await getProfillerByIds(diğerIdler);
 			profilMap = Object.fromEntries(profiller.map((p) => [p.id, p]));
+
+			const engellenenler = await getEngellenenler($user.id);
+			engellenenIdler = new Set(engellenenler.map((e) => e.engellenen_id));
+			const engellenenProfilIdler = engellenenler.map((e) => e.engellenen_id).filter((id) => !profilMap[id]);
+			if (engellenenProfilIdler.length > 0) {
+				const eksikProfiller = await getProfillerByIds(engellenenProfilIdler);
+				for (const p of eksikProfiller) profilMap[p.id] = p;
+			}
 		} catch (e) {
 			errorMsg = e.message;
 		} finally {
@@ -38,6 +49,7 @@
 		const map = new Map();
 		for (const m of mesajlar) {
 			const diğerId = m.gönderen_id === $user?.id ? m.alıcı_id : m.gönderen_id;
+			if (engellenenIdler.has(diğerId)) continue;
 			map.set(diğerId, m); // sıralı olduğu için en son mesaj kalır
 		}
 		return [...map.entries()]
@@ -78,12 +90,32 @@
 		yeniSohbetAçık = !yeniSohbetAçık;
 		if (yeniSohbetAçık && yeniSohbetProfiller.length === 0) {
 			try {
-				yeniSohbetProfiller = await getDiğerProfiller($user.id, 30);
+				const tümProfiller = await getDiğerProfiller($user.id, 30);
+				yeniSohbetProfiller = tümProfiller.filter((p) => !engellenenIdler.has(p.id));
 				const eksikOlanlar = yeniSohbetProfiller.filter((p) => !profilMap[p.id]);
 				for (const p of eksikOlanlar) profilMap[p.id] = p;
 			} catch (e) {
 				errorMsg = e.message;
 			}
+		}
+	}
+
+	async function kullanıcıyıEngelle(hedefId) {
+		try {
+			await engelle($user.id, hedefId);
+			engellenenIdler = new Set([...engellenenIdler, hedefId]);
+			if (seçiliSohbetId === hedefId) seçiliSohbetId = null;
+		} catch (e) {
+			errorMsg = e.message;
+		}
+	}
+
+	async function engeliKaldır(hedefId) {
+		try {
+			await engelKaldır($user.id, hedefId);
+			engellenenIdler = new Set([...engellenenIdler].filter((id) => id !== hedefId));
+		} catch (e) {
+			errorMsg = e.message;
 		}
 	}
 
@@ -171,6 +203,24 @@
 					{/each}
 				</div>
 			{/if}
+
+			{#if engellenenIdler.size > 0}
+				<button class="engellenenler-toggle" on:click={() => (engellenenlerAçık = !engellenenlerAçık)}>
+					{$_('mesajlar.engellenenler')} ({engellenenIdler.size})
+				</button>
+				{#if engellenenlerAçık}
+					<div class="engellenenler-list">
+						{#each [...engellenenIdler] as id (id)}
+							<div class="engellenen-item">
+								<span>{isim(id)}</span>
+								<button class="engel-kaldir-btn" on:click={() => engeliKaldır(id)}>
+									{$_('mesajlar.engeli_kaldir')}
+								</button>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			{/if}
 		</aside>
 
 		<section class="thread-panel">
@@ -183,7 +233,10 @@
 			{:else}
 				<div class="thread-header">
 					<span class="avatar">{baş(seçiliSohbetId)}</span>
-					<span class="font-display">{isim(seçiliSohbetId)}</span>
+					<span class="font-display thread-isim">{isim(seçiliSohbetId)}</span>
+					<button class="btn-engelle" on:click={() => kullanıcıyıEngelle(seçiliSohbetId)}>
+						{$_('mesajlar.engelle')}
+					</button>
 				</div>
 
 				<div class="thread-messages" bind:this={mesajListesiEl}>
@@ -364,6 +417,58 @@
 		border-bottom: 1px solid var(--border);
 		font-size: 1.05rem;
 		font-weight: 500;
+	}
+	.thread-isim {
+		flex: 1;
+	}
+	.btn-engelle {
+		border: 1px solid var(--border);
+		background: transparent;
+		color: var(--text-muted);
+		border-radius: 8px;
+		padding: 6px 12px;
+		font-size: 0.78rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.btn-engelle:hover {
+		border-color: var(--warn);
+		color: var(--warn);
+	}
+
+	.engellenenler-toggle {
+		border: none;
+		background: transparent;
+		color: var(--text-muted);
+		font-size: 0.78rem;
+		text-align: left;
+		cursor: pointer;
+		padding: 10px 4px 4px;
+		margin-top: auto;
+	}
+	.engellenenler-list {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		padding: 4px;
+	}
+	.engellenen-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.8rem;
+		gap: 8px;
+	}
+	.engel-kaldir-btn {
+		border: 1px solid var(--border);
+		background: transparent;
+		color: var(--accent);
+		border-radius: 6px;
+		padding: 4px 8px;
+		font-size: 0.72rem;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
 	}
 	.thread-messages {
 		flex: 1;
