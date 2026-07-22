@@ -6,7 +6,8 @@
 		"mesajlar": "Messages",
 		"cihazlar": "My Devices",
 		"rapor": "Report",
-		"cikis": "Log Out"
+		"cikis": "Log Out",
+		"logo": "Go Home"
 	},
 	"landing": {
 		"baslik": "Turn your clean days into a home",

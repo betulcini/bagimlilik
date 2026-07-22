@@ -1,25 +1,45 @@
 import { json } from '@sveltejs/kit';
 
-const SISTEM_PROMPTU = `Sen bir bağımlılıkla mücadele uygulamasında kullanıcıya günlük tek cümlelik motivasyon mesajı yazan bir asistansın.
+const SISTEM_PROMPTU = {
+	tr: `Sen bir bağımlılıkla mücadele uygulamasında kullanıcıya günlük tek cümlelik motivasyon mesajı yazan bir asistansın.
 Kurallar:
 - Türkçe yaz, TEK cümle olsun, en fazla 20-25 kelime.
 - Kullanıcıya doğrudan "sen" diliyle hitap et, samimi ve sıcak ol.
 - ASLA tıbbi teşhis veya psikolojik durum ismi kullanma.
 - ASLA suçlayıcı olma. Klişe/kalıp cümleler yerine, verilen gün sayısına ve ruh haline özgü, somut bir cümle kur.
-- Sadece düz metin döndür, tırnak işareti veya markdown kullanma.`;
+- Sadece düz metin döndür, tırnak işareti veya markdown kullanma.`,
+	en: `You are an assistant in an addiction-recovery app writing a one-sentence daily motivational message for the user.
+Rules:
+- Write in English, ONE sentence only, at most 20-25 words.
+- Address the user directly ("you"), warm and genuine tone.
+- NEVER use medical diagnoses or psychological condition names.
+- NEVER be judgmental. Avoid generic clichés — write something concrete, tied to the given day count and mood.
+- Return plain text only, no quotes or markdown.`
+};
 
 export async function POST({ request, platform }) {
 	const gövde = await request.json();
-	const { günSayısı, sonMood, alışkanlıkAdı } = gövde;
+	const { günSayısı, sonMood, alışkanlıkAdı, dil } = gövde;
+	const seçiliDil = dil === 'en' ? 'en' : 'tr';
 
 	if (!platform?.env?.AI) {
 		return json({
-			mesaj: 'Bugün de burada olduğun için teşekkürler — her gün bir adım daha ileri gidiyorsun.',
+			mesaj:
+				seçiliDil === 'en'
+					? "Thanks for being here today — you're moving one step further every day."
+					: 'Bugün de burada olduğun için teşekkürler — her gün bir adım daha ileri gidiyorsun.',
 			yerelFallback: true
 		});
 	}
 
-	const kullanıcıMesajı = `Alışkanlık: ${alışkanlıkAdı}
+	const kullanıcıMesajı =
+		seçiliDil === 'en'
+			? `Habit: ${alışkanlıkAdı}
+Clean day count: ${günSayısı}
+Last check-in mood (1=very bad, 5=great): ${sonMood ?? 'no check-in yet'}
+
+Based on this, write a short motivational sentence for today.`
+			: `Alışkanlık: ${alışkanlıkAdı}
 Temiz gün sayısı: ${günSayısı}
 Son check-in ruh hali (1=çok kötü, 5=harika): ${sonMood ?? 'henüz check-in yapmamış'}
 
@@ -28,7 +48,7 @@ Bu bilgilere göre bugün için kısa bir motivasyon cümlesi yaz.`;
 	try {
 		const yanıt = await platform.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
 			messages: [
-				{ role: 'system', content: SISTEM_PROMPTU },
+				{ role: 'system', content: SISTEM_PROMPTU[seçiliDil] },
 				{ role: 'user', content: kullanıcıMesajı }
 			],
 			max_tokens: 80

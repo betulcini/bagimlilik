@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { _ } from 'svelte-i18n';
+	import { _, locale } from 'svelte-i18n';
 	import { user } from '$stores/user';
 	import { getActiveHabit } from '$lib/supabase/habits';
 	import { getCheckinsSince, getRelapsesSince } from '$lib/supabase/reports';
@@ -64,7 +64,8 @@
 					checkinOrani: checkinOranı,
 					ortalamaMood,
 					seriBozmaSayisi: relapses.length,
-					tetikleyiciNotlari: tetikleyiciNotlar.map((c) => c.tetikleyici_notu)
+					tetikleyiciNotlari: tetikleyiciNotlar.map((c) => c.tetikleyici_notu),
+					dil: $locale
 				})
 			});
 			const veri = await res.json();

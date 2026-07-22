@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { _ } from 'svelte-i18n';
+	import { _, locale } from 'svelte-i18n';
 	import { user } from '$stores/user';
 	import { getActiveHabit, createHabit, recordRelapse, parsePgIntervalToSeconds } from '$lib/supabase/habits';
 	import { getTodayCheckin, addCheckin } from '$lib/supabase/checkins';
@@ -91,7 +91,7 @@
 
 	async function motivasyonMesajınıGetir(habit, günSayısı, sonMood) {
 		const bugünAnahtarı = new Date().toISOString().slice(0, 10);
-		const cacheAnahtarı = `motivasyon-${habit.id}-${bugünAnahtarı}`;
+		const cacheAnahtarı = `motivasyon-${habit.id}-${bugünAnahtarı}-${$locale}`;
 		const önbellek = localStorage.getItem(cacheAnahtarı);
 		if (önbellek) {
 			motivasyonMesajı = önbellek;
@@ -103,7 +103,7 @@
 			const res = await fetch('/api/motivasyon', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ günSayısı, sonMood, alışkanlıkAdı: habit.alışkanlık_adı })
+				body: JSON.stringify({ günSayısı, sonMood, alışkanlıkAdı: habit.alışkanlık_adı, dil: $locale })
 			});
 			const veri = await res.json();
 			if (veri.mesaj) {

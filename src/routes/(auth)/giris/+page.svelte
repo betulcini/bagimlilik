@@ -31,7 +31,7 @@
 
 <div class="auth-page">
 	<div class="auth-topbar">
-		<a href="/" class="logo font-display">eve&nbsp;dön</a>
+		<a href="/" class="logo font-display">{$_("nav.logo")}</a>
 		<div class="auth-toggles">
 			<LangToggle />
 			<ThemeToggle />
