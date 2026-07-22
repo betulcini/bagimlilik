@@ -104,13 +104,16 @@
 		.links {
 			order: 3;
 			width: 100%;
-			justify-content: space-between;
+			justify-content: center;
+			flex-wrap: wrap;
+			row-gap: 4px;
 			padding-top: 8px;
 			border-top: 1px solid var(--border);
 		}
 		.links a {
-			padding: 8px 6px;
-			font-size: 0.8rem;
+			padding: 6px 8px;
+			font-size: 0.75rem;
+			white-space: nowrap;
 		}
 	}
 </style>
