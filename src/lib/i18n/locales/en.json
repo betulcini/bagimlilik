@@ -150,6 +150,10 @@
 		"mood_grafigi": "Mood Chart",
 		"checkin_yok": "no check-in",
 		"nuks_gecmisi": "Relapse History",
-		"tetikleyici_notlari": "Trigger Notes"
+		"tetikleyici_notlari": "Trigger Notes",
+		"ai_ozet_baslik": "AI Summary",
+		"ai_ozet_cikar": "Generate Summary",
+		"ai_yukleniyor": "Generating...",
+		"ai_ozet_aciklama": "Tap the button to get a short AI summary and tip based on this period's data."
 	}
 }

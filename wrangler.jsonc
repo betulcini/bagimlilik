@@ -6,5 +6,8 @@
 	"assets": {
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
+	},
+	"ai": {
+		"binding": "AI"
 	}
 }

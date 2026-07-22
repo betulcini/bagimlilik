@@ -64,6 +64,12 @@ Cloudflare artık siteleri "Pages" yerine "Workers" akışından deploy ediyor (
 
 Bu proje artık `@sveltejs/adapter-cloudflare` ve `wrangler.jsonc` ile Cloudflare Workers'a uygun şekilde yapılandırılmış durumda — `npm run build` çalıştığında Cloudflare'in beklediği formatta bir worker üretiyor.
 
+## Cloudflare Workers AI (rapor özeti + günlük motivasyon)
+
+Bu iki özellik `wrangler.jsonc`'deki `ai` binding'ini kullanıyor, ekstra bir hesap/API key gerekmiyor — Cloudflare'e deploy ettiğinde otomatik çalışır. **Yerel geliştirmede (`npm run dev`) çalışmaz** (Workers AI sadece Cloudflare'in kendi ortamında erişilebilir); bu durumda site otomatik olarak sabit bir yedek mesaj gösterir, hata vermez.
+
+Deploy ettikten sonra ilk denemede biraz gecikme olabilir (model "soğuk başlangıç" yapıyor), sonraki istekler daha hızlı olur.
+
 ## Sıradaki adımlar (birlikte kodlanacak)
 1. Landing sayfası
 2. Kayıt / giriş sayfaları

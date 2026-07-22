@@ -17,6 +17,10 @@
 	let bonusBakiye = 0;
 	let davetLinkKopyalandı = false;
 
+	// günün motivasyon cümlesi
+	let motivasyonMesajı = '';
+	let motivasyonYükleniyor = false;
+
 	// onboarding formu
 	let yeniAlışkanlıkAdı = '';
 	let yeniBaşlangıç = new Date().toISOString().slice(0, 16); // datetime-local formatı
@@ -65,6 +69,8 @@
 					if (yeniKazanılanRozetler.length > 0) {
 						setTimeout(() => (yeniKazanılanRozetler = []), 6000);
 					}
+
+					motivasyonMesajınıGetir(habit, şimdikiGün, bugünCheckin?.mood);
 				}
 				const profil = await getDavetProfil($user.id);
 				davetKodu = profil.davet_kodu;
@@ -82,6 +88,34 @@
 		}
 		loadingHabit = false;
 	});
+
+	async function motivasyonMesajınıGetir(habit, günSayısı, sonMood) {
+		const bugünAnahtarı = new Date().toISOString().slice(0, 10);
+		const cacheAnahtarı = `motivasyon-${habit.id}-${bugünAnahtarı}`;
+		const önbellek = localStorage.getItem(cacheAnahtarı);
+		if (önbellek) {
+			motivasyonMesajı = önbellek;
+			return;
+		}
+
+		motivasyonYükleniyor = true;
+		try {
+			const res = await fetch('/api/motivasyon', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ günSayısı, sonMood, alışkanlıkAdı: habit.alışkanlık_adı })
+			});
+			const veri = await res.json();
+			if (veri.mesaj) {
+				motivasyonMesajı = veri.mesaj;
+				if (!veri.yerelFallback) localStorage.setItem(cacheAnahtarı, veri.mesaj);
+			}
+		} catch {
+			// motivasyon mesajı olmazsa sessizce geç, kritik değil
+		} finally {
+			motivasyonYükleniyor = false;
+		}
+	}
 
 	onDestroy(() => {
 		if (interval) clearInterval(interval);
@@ -231,6 +265,10 @@
 				{$_('dashboard.nuks_buton')}
 			</button>
 		</section>
+
+		{#if motivasyonMesajı}
+			<div class="motivasyon-satiri">{motivasyonMesajı}</div>
+		{/if}
 
 		<div class="stat-row">
 			<div class="card stat">
@@ -421,6 +459,17 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
+	}
+
+	.motivasyon-satiri {
+		background: var(--accent-soft);
+		color: var(--accent);
+		border-radius: 12px;
+		padding: 14px 20px;
+		font-size: 0.92rem;
+		font-weight: 500;
+		text-align: center;
+		font-style: italic;
 	}
 
 	.counter-card {

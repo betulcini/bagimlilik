@@ -11,6 +11,9 @@
 	let periyot = 7; // 7 = haftalık, 30 = aylık
 	let checkins = [];
 	let relapses = [];
+	let aiÖzet = '';
+	let aiYükleniyor = false;
+	let aiHata = '';
 
 	const moodRenkleri = { 1: '#b5482f', 2: '#c97a52', 3: '#c69a3a', 4: '#7fbfa8', 5: '#2f6f5e' };
 
@@ -44,7 +47,37 @@
 
 	async function periyotDeğiştir(yeni) {
 		periyot = yeni;
+		aiÖzet = '';
+		aiHata = '';
 		await verileriYükle();
+	}
+
+	async function aiÖzetÇıkar() {
+		aiYükleniyor = true;
+		aiHata = '';
+		try {
+			const res = await fetch('/api/rapor-ozeti', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					periyot,
+					checkinOrani: checkinOranı,
+					ortalamaMood,
+					seriBozmaSayisi: relapses.length,
+					tetikleyiciNotlari: tetikleyiciNotlar.map((c) => c.tetikleyici_notu)
+				})
+			});
+			const veri = await res.json();
+			if (veri.hata) {
+				aiHata = veri.hata;
+			} else {
+				aiÖzet = veri.özet;
+			}
+		} catch (e) {
+			aiHata = e.message;
+		} finally {
+			aiYükleniyor = false;
+		}
 	}
 
 	function günAnahtarı(tarih) {
@@ -164,6 +197,22 @@
 		</div>
 	</div>
 
+	<div class="card ai-card">
+		<div class="ai-header">
+			<h2 class="font-display">{$_('rapor.ai_ozet_baslik')}</h2>
+			<button class="btn-ai" on:click={aiÖzetÇıkar} disabled={aiYükleniyor}>
+				{aiYükleniyor ? $_('rapor.ai_yukleniyor') : $_('rapor.ai_ozet_cikar')}
+			</button>
+		</div>
+		{#if aiHata}
+			<p class="error">{aiHata}</p>
+		{:else if aiÖzet}
+			<p class="ai-metin">{aiÖzet}</p>
+		{:else}
+			<p class="muted small">{$_('rapor.ai_ozet_aciklama')}</p>
+		{/if}
+	</div>
+
 	{#if relapses.length > 0}
 		<div class="card">
 			<h2 class="font-display">{$_('rapor.nuks_gecmisi')}</h2>
@@ -205,6 +254,9 @@
 	.muted {
 		color: var(--text-muted);
 		font-size: 0.92rem;
+	}
+	.muted.small {
+		font-size: 0.82rem;
 	}
 	.error {
 		color: var(--warn);
@@ -294,6 +346,39 @@
 	}
 	.chart-scroll {
 		overflow-x: auto;
+	}
+
+	.ai-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-bottom: 12px;
+		flex-wrap: wrap;
+	}
+	.ai-header h2 {
+		margin: 0;
+	}
+	.btn-ai {
+		border: none;
+		background: var(--accent);
+		color: var(--bg-elevated);
+		border-radius: 8px;
+		padding: 8px 16px;
+		font-size: 0.82rem;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.btn-ai:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+	.ai-metin {
+		font-size: 0.92rem;
+		line-height: 1.6;
+		color: var(--text);
+		margin: 0;
 	}
 
 	.log-list {

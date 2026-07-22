@@ -151,6 +151,10 @@
 		"mood_grafigi": "Ruh Hali Grafiği",
 		"checkin_yok": "check-in yok",
 		"nuks_gecmisi": "Seri Bozma Geçmişi",
-		"tetikleyici_notlari": "Tetikleyici Notları"
+		"tetikleyici_notlari": "Tetikleyici Notları",
+		"ai_ozet_baslik": "Yapay Zeka Özeti",
+		"ai_ozet_cikar": "Özet Çıkar",
+		"ai_yukleniyor": "Hazırlanıyor...",
+		"ai_ozet_aciklama": "Bu dönemki verilerine göre kısa bir özet ve öneri almak için butona bas."
 	}
 }
