@@ -15,6 +15,8 @@
 	let aiÖzet = '';
 	let aiYükleniyor = false;
 	let aiHata = '';
+	let kullanıcıAdı = '';
+	let pdfOluşturuluyor = false;
 
 	const moodRenkleri = { 1: '#b5482f', 2: '#c97a52', 3: '#c69a3a', 4: '#7fbfa8', 5: '#2f6f5e' };
 
@@ -22,6 +24,8 @@
 		if (!$user) return;
 		try {
 			habit = await getActiveHabit($user.id);
+			const { data: profil } = await supabase.from('profiles').select('kullanici_adi').eq('id', $user.id).single();
+			kullanıcıAdı = profil?.kullanici_adi ?? '';
 		} catch (e) {
 			errorMsg = e.message;
 		} finally {
@@ -88,6 +92,149 @@
 		}
 	}
 
+	async function pdfİndir() {
+		pdfOluşturuluyor = true;
+		try {
+			const [{ default: pdfMake }, vfsModül] = await Promise.all([
+				import('pdfmake/build/pdfmake'),
+				import('pdfmake/build/vfs_fonts')
+			]);
+			pdfMake.vfs = vfsModül.pdfMake?.vfs ?? vfsModül.default?.pdfMake?.vfs;
+
+			const dilEN = $locale === 'en';
+			const periyotMetni = periyot === 7 ? $_('rapor.haftalik') : $_('rapor.aylik');
+			const raporTarihi = new Date().toLocaleString(dilEN ? 'en-US' : 'tr-TR');
+			const tarihAralığı = `${tarihFormatla(günler[0])} – ${tarihFormatla(günler[günler.length - 1])}`;
+
+			const mtBaslik = dilEN ? 'Progress Report' : 'Gelişim Raporu';
+			const mtKullanici = dilEN ? 'User' : 'Kullanıcı';
+			const mtAliskanlik = dilEN ? 'Habit' : 'Alışkanlık';
+			const mtPeriyot = dilEN ? 'Period' : 'Periyot';
+			const mtRaporTarihi = dilEN ? 'Report Date' : 'Rapor Tarihi';
+			const mtOzetIstatistik = dilEN ? 'Summary Statistics' : 'Özet İstatistikler';
+			const mtCheckinOrani = dilEN ? 'Check-in Rate' : 'Check-in Oranı';
+			const mtOrtalamaMood = dilEN ? 'Average Mood' : 'Ortalama Ruh Hali';
+			const mtSeriBozma = dilEN ? 'Relapse Count' : 'Seri Bozma Sayısı';
+			const mtGunlukGecmis = dilEN ? 'Daily Mood Log' : 'Günlük Ruh Hali Kaydı';
+			const mtTarih = dilEN ? 'Date' : 'Tarih';
+			const mtRuhHali = dilEN ? 'Mood' : 'Ruh Hali';
+			const mtNot = dilEN ? 'Note' : 'Not';
+			const mtCheckinYok = dilEN ? 'No check-in' : 'Check-in yok';
+			const mtNuksGecmisi = dilEN ? 'Relapse History' : 'Seri Bozma (Nüks) Geçmişi';
+			const mtNuksYok = dilEN
+				? 'No relapses recorded in this period.'
+				: 'Bu dönemde kayıtlı seri bozma yok.';
+			const mtTetikleyiciler = dilEN ? 'Trigger Notes' : 'Tetikleyici Notları';
+			const mtTetikleyiciYok = dilEN
+				? 'No trigger notes entered in this period.'
+				: 'Bu dönemde tetikleyici notu girilmemiş.';
+			const mtAiOzet = dilEN ? 'AI-Assisted Summary' : 'Yapay Zeka Destekli Özet';
+			const mtDisclaimer = dilEN
+				? 'This report is automatically generated from the user\'s self-reported check-in data within the application. It does not constitute a medical diagnosis and should be evaluated by a qualified professional alongside other clinical information.'
+				: 'Bu rapor, kullanıcının uygulama içinde kendi beyanına dayalı olarak girdiği check-in verilerinden otomatik olarak oluşturulmuştur. Tıbbi bir teşhis niteliği taşımaz; yetkili bir uzman tarafından diğer klinik bilgilerle birlikte değerlendirilmelidir.';
+
+			const günSatırları = günler.map((gün) => {
+				const checkin = checkinByGün.get(günAnahtarı(gün));
+				return [
+					tarihFormatla(gün),
+					checkin ? $_(`dashboard.mood_${checkin.mood}`) : mtCheckinYok,
+					checkin?.tetikleyici_notu || ''
+				];
+			});
+
+			const içerik = [
+				{ text: 'Ev Dön', style: 'brand' },
+				{ text: mtBaslik, style: 'title' },
+				{
+					table: {
+						widths: ['auto', '*'],
+						body: [
+							[{ text: mtKullanici + ':', bold: true, border: [false, false, false, false] }, kullanıcıAdı],
+							[{ text: mtAliskanlik + ':', bold: true, border: [false, false, false, false] }, habit.alışkanlık_adı],
+							[
+								{ text: mtPeriyot + ':', bold: true, border: [false, false, false, false] },
+								`${periyotMetni} (${tarihAralığı})`
+							],
+							[{ text: mtRaporTarihi + ':', bold: true, border: [false, false, false, false] }, raporTarihi]
+						]
+					},
+					layout: 'noBorders',
+					margin: [0, 10, 0, 16]
+				},
+				{ text: mtOzetIstatistik, style: 'sectionHeader' },
+				{
+					table: {
+						widths: ['*', 'auto'],
+						body: [
+							[mtCheckinOrani, `%${checkinOranı} (${yapılanCheckinSayısı}/${günler.length})`],
+							[mtOrtalamaMood, ortalamaMood ?? '—'],
+							[mtSeriBozma, String(relapses.length)]
+						]
+					},
+					margin: [0, 4, 0, 16]
+				},
+				{ text: mtGunlukGecmis, style: 'sectionHeader' },
+				{
+					table: {
+						headerRows: 1,
+						widths: ['auto', 'auto', '*'],
+						body: [
+							[
+								{ text: mtTarih, style: 'tableHeader' },
+								{ text: mtRuhHali, style: 'tableHeader' },
+								{ text: mtNot, style: 'tableHeader' }
+							],
+							...günSatırları
+						]
+					},
+					margin: [0, 4, 0, 16]
+				},
+				{ text: mtNuksGecmisi, style: 'sectionHeader' },
+				relapses.length > 0
+					? {
+							table: {
+								headerRows: 1,
+								widths: ['auto', '*'],
+								body: [
+									[{ text: mtTarih, style: 'tableHeader' }, { text: mtNot, style: 'tableHeader' }],
+									...relapses.map((r) => [tarihFormatla(r.tarih), r.not_ || ''])
+								]
+							},
+							margin: [0, 4, 0, 16]
+						}
+					: { text: mtNuksYok, italics: true, color: '#888', margin: [0, 4, 0, 16] }
+			];
+
+			if (aiÖzet) {
+				içerik.push({ text: mtAiOzet, style: 'sectionHeader' });
+				içerik.push({ text: aiÖzet, margin: [0, 4, 0, 16], italics: true });
+			}
+
+			const docDefinition = {
+				content: içerik,
+				styles: {
+					brand: { fontSize: 10, color: '#2f6f5e', bold: true, margin: [0, 0, 0, 4] },
+					title: { fontSize: 18, bold: true, margin: [0, 0, 0, 4] },
+					sectionHeader: { fontSize: 12, bold: true, color: '#2f6f5e', margin: [0, 12, 0, 4] },
+					tableHeader: { bold: true, fillColor: '#f6f3ee' }
+				},
+				defaultStyle: { fontSize: 9 },
+				footer: (currentPage, pageCount) => ({
+					stack: [
+						{ text: mtDisclaimer, fontSize: 6.5, color: '#999', margin: [40, 4, 40, 0] },
+						{ text: `${currentPage} / ${pageCount}`, alignment: 'right', fontSize: 7, margin: [0, 2, 40, 0] }
+					]
+				})
+			};
+
+			pdfMake.createPdf(docDefinition).download(`gelisim-raporu-${periyot}gun.pdf`);
+		} catch (e) {
+			errorMsg = e.message;
+		} finally {
+			pdfOluşturuluyor = false;
+		}
+	}
+
 	function günAnahtarı(tarih) {
 		const d = new Date(tarih);
 		return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
@@ -141,8 +288,17 @@
 </svelte:head>
 
 <div class="rapor-header">
-	<h1 class="font-display">{$_('rapor.baslik')}</h1>
-	<p class="muted">{$_('rapor.aciklama')}</p>
+	<div class="rapor-header-top">
+		<div>
+			<h1 class="font-display">{$_('rapor.baslik')}</h1>
+			<p class="muted">{$_('rapor.aciklama')}</p>
+		</div>
+		{#if habit}
+			<button class="btn-pdf" on:click={pdfİndir} disabled={pdfOluşturuluyor}>
+				{pdfOluşturuluyor ? $_('rapor.pdf_hazirlaniyor') : $_('rapor.pdf_indir')}
+			</button>
+		{/if}
+	</div>
 </div>
 
 {#if errorMsg}<p class="error">{errorMsg}</p>{/if}
@@ -253,6 +409,31 @@
 <style>
 	.rapor-header {
 		margin-bottom: 20px;
+	}
+	.rapor-header-top {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 16px;
+		flex-wrap: wrap;
+	}
+	.btn-pdf {
+		border: 1px solid var(--border);
+		background: var(--bg-elevated);
+		color: var(--accent);
+		border-radius: 10px;
+		padding: 10px 18px;
+		font-size: 0.85rem;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.btn-pdf:hover {
+		border-color: var(--accent);
+	}
+	.btn-pdf:disabled {
+		opacity: 0.6;
+		cursor: default;
 	}
 	.rapor-header h1 {
 		font-size: 1.6rem;

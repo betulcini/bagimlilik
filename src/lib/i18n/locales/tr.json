@@ -163,6 +163,8 @@
 		"ai_ozet_baslik": "Yapay Zeka Özeti",
 		"ai_ozet_cikar": "Özet Çıkar",
 		"ai_yukleniyor": "Hazırlanıyor...",
-		"ai_ozet_aciklama": "Bu dönemki verilerine göre kısa bir özet ve öneri almak için butona bas."
+		"ai_ozet_aciklama": "Bu dönemki verilerine göre kısa bir özet ve öneri almak için butona bas.",
+		"pdf_indir": "PDF Olarak İndir",
+		"pdf_hazirlaniyor": "Hazırlanıyor..."
 	}
 }

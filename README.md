@@ -50,6 +50,14 @@ firmware/
   esp32-akilli-priz/       → cihaz elindeyken ESP32'ye yükleyeceğin örnek Arduino kodu
 ```
 
+## Testler
+
+```bash
+npm test
+```
+
+Şu an `parsePgIntervalToSeconds` (nüks/seri hesaplama mantığı) ve `cihazÇevrimİçiMi` (cihaz çevrimiçi/çevrimdışı kontrolü) için birim testleri var — bunlar projenin en kolay hata yapılabilecek, saf mantık içeren fonksiyonları. Tüm arayüzü (component/e2e) test eden bir paket değil, bilinçli olarak dar kapsamlı tutuldu.
+
 ## Cloudflare'e deploy etme
 
 Cloudflare artık siteleri "Pages" yerine "Workers" akışından deploy ediyor (panelde ayrı bir "Pages" sekmesi yok). Adımlar:

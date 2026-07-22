@@ -162,6 +162,8 @@
 		"ai_ozet_baslik": "AI Summary",
 		"ai_ozet_cikar": "Generate Summary",
 		"ai_yukleniyor": "Generating...",
-		"ai_ozet_aciklama": "Tap the button to get a short AI summary and tip based on this period's data."
+		"ai_ozet_aciklama": "Tap the button to get a short AI summary and tip based on this period's data.",
+		"pdf_indir": "Download as PDF",
+		"pdf_hazirlaniyor": "Preparing..."
 	}
 }
