@@ -7,6 +7,7 @@
 	import { getDavetProfil, getBonusBakiye, anasayfaBonusuVerVarsaGerek, ANASAYFA_BONUS } from '$lib/supabase/coins';
 	import { nükstePrizleriKapat } from '$lib/supabase/devices';
 	import { getBasarimlar, getKullanıcıBasarımları, eksikRozetleriVer } from '$lib/supabase/achievements';
+	import { supabase } from '$lib/supabase/client';
 	import RozetSatiri from '$components/rozet/RozetSatiri.svelte';
 
 	let habit = null;
@@ -100,9 +101,15 @@
 
 		motivasyonYükleniyor = true;
 		try {
+			const {
+				data: { session }
+			} = await supabase.auth.getSession();
 			const res = await fetch('/api/motivasyon', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${session?.access_token}`
+				},
 				body: JSON.stringify({ günSayısı, sonMood, alışkanlıkAdı: habit.alışkanlık_adı, dil: $locale })
 			});
 			const veri = await res.json();

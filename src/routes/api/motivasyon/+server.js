@@ -1,4 +1,20 @@
 import { json } from '@sveltejs/kit';
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+
+/** Gelen isteğin geçerli, oturum açmış bir Supabase kullanıcısına ait olup olmadığını doğrular. */
+async function kullanıcıDoğrula(request) {
+	const yetkiBaşlığı = request.headers.get('authorization');
+	if (!yetkiBaşlığı) return false;
+
+	try {
+		const res = await fetch(`${PUBLIC_SUPABASE_URL}/auth/v1/user`, {
+			headers: { apikey: PUBLIC_SUPABASE_ANON_KEY, authorization: yetkiBaşlığı }
+		});
+		return res.ok;
+	} catch {
+		return false;
+	}
+}
 
 const SISTEM_PROMPTU = {
 	tr: `Sen bir bağımlılıkla mücadele uygulamasında kullanıcıya günlük tek cümlelik motivasyon mesajı yazan bir asistansın.
@@ -18,6 +34,10 @@ Rules:
 };
 
 export async function POST({ request, platform }) {
+	if (!(await kullanıcıDoğrula(request))) {
+		return json({ hata: 'Yetkisiz istek.' }, { status: 401 });
+	}
+
 	const gövde = await request.json();
 	const { günSayısı, sonMood, alışkanlıkAdı, dil } = gövde;
 	const seçiliDil = dil === 'en' ? 'en' : 'tr';
