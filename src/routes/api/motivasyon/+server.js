@@ -26,7 +26,7 @@ Son check-in ruh hali (1=çok kötü, 5=harika): ${sonMood ?? 'henüz check-in y
 Bu bilgilere göre bugün için kısa bir motivasyon cümlesi yaz.`;
 
 	try {
-		const yanıt = await platform.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+		const yanıt = await platform.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
 			messages: [
 				{ role: 'system', content: SISTEM_PROMPTU },
 				{ role: 'user', content: kullanıcıMesajı }

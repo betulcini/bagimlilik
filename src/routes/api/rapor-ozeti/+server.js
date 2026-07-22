@@ -36,7 +36,7 @@ Tetikleyici notları: ${notlarMetni}
 Bu verilere göre kullanıcıya kısa bir özet/içgörü yaz.`;
 
 	try {
-		const yanıt = await platform.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+		const yanıt = await platform.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
 			messages: [
 				{ role: 'system', content: SISTEM_PROMPTU },
 				{ role: 'user', content: kullanıcıMesajı }
