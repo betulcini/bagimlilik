@@ -6,6 +6,7 @@
 	import { getDiğerProfiller, getProfillerByIds } from '$lib/supabase/social';
 	import { getMesajlar, mesajGönder, anonimEşleş } from '$lib/supabase/messages';
 	import { getEngellenenler, engelle, engelKaldır } from '$lib/supabase/blocks';
+	import { şikayetGönder } from '$lib/supabase/sikayetler';
 
 	let habit = null;
 	let mesajlar = [];
@@ -18,6 +19,10 @@
 	let gönderiliyor = false;
 	let errorMsg = '';
 	let mesajListesiEl;
+	let şikayetModalMesajı = null; // şikayet edilecek mesaj objesi ya da null
+	let şikayetSebebi = '';
+	let şikayetGönderiliyor = false;
+	let şikayetTeşekkürGösteriliyor = false;
 	let engellenenIdler = new Set();
 	let engellenenlerAçık = false;
 
@@ -116,6 +121,33 @@
 			engellenenIdler = new Set([...engellenenIdler].filter((id) => id !== hedefId));
 		} catch (e) {
 			errorMsg = e.message;
+		}
+	}
+
+	function şikayetModalınıAç(mesaj) {
+		şikayetModalMesajı = mesaj;
+		şikayetSebebi = '';
+	}
+
+	async function şikayetOnayla() {
+		if (!şikayetModalMesajı || şikayetGönderiliyor) return;
+		şikayetGönderiliyor = true;
+		errorMsg = '';
+		try {
+			await şikayetGönder({
+				şikayetEdenId: $user.id,
+				şikayetEdilenId: şikayetModalMesajı.gönderen_id,
+				mesajId: şikayetModalMesajı.id,
+				mesajİçeriği: şikayetModalMesajı.içerik,
+				sebep: şikayetSebebi
+			});
+			şikayetModalMesajı = null;
+			şikayetTeşekkürGösteriliyor = true;
+			setTimeout(() => (şikayetTeşekkürGösteriliyor = false), 4000);
+		} catch (e) {
+			errorMsg = e.message;
+		} finally {
+			şikayetGönderiliyor = false;
 		}
 	}
 
@@ -244,7 +276,14 @@
 						<div class="bubble-row" class:mine={m.gönderen_id === $user.id}>
 							<div class="bubble">
 								<p>{m.içerik}</p>
-								<span class="bubble-saat">{saatFormatla(m.tarih)}</span>
+								<div class="bubble-alt">
+									<span class="bubble-saat">{saatFormatla(m.tarih)}</span>
+									{#if m.gönderen_id !== $user.id}
+										<button class="bubble-sikayet" on:click={() => şikayetModalınıAç(m)}>
+											{$_('mesajlar.sikayet_et')}
+										</button>
+									{/if}
+								</div>
 							</div>
 						</div>
 					{/each}
@@ -259,6 +298,27 @@
 			{/if}
 		</section>
 	</div>
+{/if}
+
+{#if şikayetModalMesajı}
+	<div class="modal-backdrop" on:click|self={() => (şikayetModalMesajı = null)}>
+		<div class="modal">
+			<h3 class="font-display">{$_('mesajlar.sikayet_baslik')}</h3>
+			<p class="muted small">{$_('mesajlar.sikayet_aciklama')}</p>
+			<blockquote class="sikayet-alinti">{şikayetModalMesajı.içerik}</blockquote>
+			<textarea bind:value={şikayetSebebi} placeholder={$_('mesajlar.sikayet_sebep_placeholder')} rows="3"></textarea>
+			<div class="modal-actions">
+				<button class="btn-ghost" on:click={() => (şikayetModalMesajı = null)}>{$_('mesajlar.vazgec')}</button>
+				<button class="btn-warn" on:click={şikayetOnayla} disabled={şikayetGönderiliyor}>
+					{$_('mesajlar.sikayet_gonder')}
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+{#if şikayetTeşekkürGösteriliyor}
+	<div class="sikayet-toast">{$_('mesajlar.sikayet_gonderildi')}</div>
 {/if}
 
 <style>
@@ -501,12 +561,116 @@
 		font-size: 0.9rem;
 		line-height: 1.4;
 	}
+	.bubble-alt {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 8px;
+		margin-top: 4px;
+	}
 	.bubble-saat {
-		display: block;
 		font-size: 0.68rem;
 		opacity: 0.7;
-		margin-top: 4px;
-		text-align: right;
+	}
+	.bubble-sikayet {
+		border: none;
+		background: transparent;
+		color: inherit;
+		opacity: 0.55;
+		font-size: 0.68rem;
+		text-decoration: underline;
+		cursor: pointer;
+		padding: 0;
+	}
+	.bubble-sikayet:hover {
+		opacity: 1;
+	}
+
+	.modal-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.4);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 20px;
+		z-index: 50;
+	}
+	.modal {
+		background: var(--bg-elevated);
+		border-radius: 16px;
+		padding: 28px;
+		max-width: 420px;
+		width: 100%;
+	}
+	.modal h3 {
+		margin: 0 0 8px;
+		font-size: 1.2rem;
+	}
+	.sikayet-alinti {
+		margin: 12px 0;
+		padding: 10px 14px;
+		border-left: 3px solid var(--border);
+		background: var(--bg);
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		font-style: italic;
+	}
+	.modal textarea {
+		width: 100%;
+		font-family: inherit;
+		font-size: 0.9rem;
+		padding: 10px 12px;
+		border-radius: 8px;
+		border: 1px solid var(--border);
+		background: var(--bg);
+		color: var(--text);
+		resize: vertical;
+		margin-bottom: 14px;
+	}
+	.modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+	}
+	.btn-ghost {
+		border: 1px solid var(--border);
+		background: transparent;
+		color: var(--text);
+		border-radius: 8px;
+		padding: 10px 18px;
+		font-size: 0.85rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.btn-warn {
+		border: none;
+		background: var(--warn);
+		color: white;
+		border-radius: 8px;
+		padding: 10px 18px;
+		font-size: 0.85rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.btn-warn:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+
+	.sikayet-toast {
+		position: fixed;
+		bottom: 24px;
+		left: 50%;
+		transform: translateX(-50%);
+		background: var(--accent);
+		color: var(--bg-elevated);
+		padding: 14px 24px;
+		border-radius: 12px;
+		font-size: 0.9rem;
+		font-weight: 600;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+		z-index: 60;
 	}
 
 	.thread-input {

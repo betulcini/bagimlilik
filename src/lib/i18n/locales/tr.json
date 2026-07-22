@@ -117,7 +117,14 @@
 		"sohbet_secilmedi": "Mesajlaşmak için bir sohbet seç.",
 		"engelle": "Engelle",
 		"engellenenler": "Engellenenler",
-		"engeli_kaldir": "Kaldır"
+		"engeli_kaldir": "Kaldır",
+		"sikayet_et": "Şikayet Et",
+		"sikayet_baslik": "Bu mesajı şikayet et",
+		"sikayet_aciklama": "Şikayetin sadece proje ekibine iletilir, gönderen kişi haberdar olmaz.",
+		"sikayet_sebep_placeholder": "Neden şikayet ediyorsun? (opsiyonel)",
+		"sikayet_gonder": "Şikayeti Gönder",
+		"sikayet_gonderildi": "Şikayetin alındı, teşekkürler.",
+		"vazgec": "Vazgeç"
 	},
 	"cihazlar": {
 		"baslik": "Cihazlarım",

@@ -116,7 +116,14 @@
 		"sohbet_secilmedi": "Select a conversation to start messaging.",
 		"engelle": "Block",
 		"engellenenler": "Blocked",
-		"engeli_kaldir": "Unblock"
+		"engeli_kaldir": "Unblock",
+		"sikayet_et": "Report",
+		"sikayet_baslik": "Report this message",
+		"sikayet_aciklama": "Your report only goes to the project team, the sender won't be notified.",
+		"sikayet_sebep_placeholder": "Why are you reporting this? (optional)",
+		"sikayet_gonder": "Send Report",
+		"sikayet_gonderildi": "Your report was received, thank you.",
+		"vazgec": "Cancel"
 	},
 	"cihazlar": {
 		"baslik": "My Devices",
