@@ -40,7 +40,7 @@
 		"giris_yap_link": "Giriş yap",
 		"hesabin_yok_mu": "Hesabın yok mu?",
 		"kayit_ol_link": "Kayıt ol",
-		"eposta_dogrulama_mesaji": "Kayıt neredeyse tamam! E-postana gönderdiğimiz doğrulama linkine tıkla, sonra giriş yapabilirsin.",
+		"eposta_dogrulama_mesaji": "Kayıt neredeyse tamam! E-postana gönderdiğimiz doğrulama linkine tıkla, sonra giriş yapabilirsin. Mail gelmezse spam/gereksiz kutunuzu kontrol etmeyi unutmayın.",
 		"sifre_min_uyari": "Şifre en az 6 karakter olmalı.",
 		"kullanici_adi_placeholder": "örn. betul123",
 		"gonderiliyor": "Gönderiliyor...",

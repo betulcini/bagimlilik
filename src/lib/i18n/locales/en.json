@@ -40,7 +40,7 @@
 		"giris_yap_link": "Log in",
 		"hesabin_yok_mu": "Don't have an account?",
 		"kayit_ol_link": "Sign up",
-		"eposta_dogrulama_mesaji": "Almost done! Click the confirmation link we sent to your email, then you can log in.",
+		"eposta_dogrulama_mesaji": "Almost done! Click the confirmation link we sent to your email, then you can log in. If it doesn't arrive, check your spam/junk folder.",
 		"sifre_min_uyari": "Password must be at least 6 characters.",
 		"kullanici_adi_placeholder": "e.g. betul123",
 		"gonderiliyor": "Sending..."
