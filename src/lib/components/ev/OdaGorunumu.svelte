@@ -1,5 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import { _ } from 'svelte-i18n';
 	import EsyaIkon from './EsyaIkon.svelte';
 
 	export let yerleşmişler = [];
@@ -34,6 +35,32 @@
 		return yerleşmişler.find((uh) => uh.konum_x === col && uh.konum_y === row);
 	}
 
+	function tileTıklandı(col, row) {
+		if (readonly) return;
+		dispatch('tileClick', { col, row });
+	}
+
+	function tileTuşaBasıldı(e, col, row) {
+		if (readonly) return;
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			dispatch('tileClick', { col, row });
+		}
+	}
+
+	function itemTıklandı(uh) {
+		if (readonly) return;
+		dispatch('itemClick', uh);
+	}
+
+	function itemTuşaBasıldı(e, uh) {
+		if (readonly) return;
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			dispatch('itemClick', uh);
+		}
+	}
+
 	$: solDuvar = (() => {
 		const a = köşe(0, 0);
 		const b = köşe(0, gridSize);
@@ -49,9 +76,9 @@
 	$: viewBox = `${-gridSize * (TILE_W / 2) - 20} ${-WALL_H - 20} ${gridSize * TILE_W + 40} ${gridSize * TILE_H + WALL_H + 60}`;
 </script>
 
-<svg {viewBox} class="room-svg">
-	<polygon points={solDuvar} class="wall wall-left" />
-	<polygon points={arkaDuvar} class="wall wall-back" />
+<svg {viewBox} class="room-svg" role="group" aria-label={$_('ev.oda_aria')}>
+	<polygon points={solDuvar} class="wall wall-left" aria-hidden="true" />
+	<polygon points={arkaDuvar} class="wall wall-back" aria-hidden="true" />
 
 	{#each Array(gridSize) as _r, row}
 		{#each Array(gridSize) as _c, col}
@@ -60,7 +87,11 @@
 				class="tile"
 				class:tile-alt={(row + col) % 2 === 0}
 				class:readonly
-				on:click={() => !readonly && dispatch('tileClick', { col, row })}
+				tabindex={readonly || hücredeEşyaVarMı(col, row) ? -1 : 0}
+				role={readonly ? undefined : 'button'}
+				aria-label={readonly ? undefined : $_('erisilebilirlik.hucre_bos')}
+				on:click={() => tileTıklandı(col, row)}
+				on:keydown={(e) => tileTuşaBasıldı(e, col, row)}
 			/>
 		{/each}
 	{/each}
@@ -72,10 +103,14 @@
 			class:nadir={uh.house_items?.nadir_mi}
 			class:readonly
 			transform="translate({merkez.x},{merkez.y - 8})"
-			on:click={() => !readonly && dispatch('itemClick', uh)}
+			tabindex={readonly ? -1 : 0}
+			role={readonly ? undefined : 'button'}
+			aria-label={readonly ? uh.house_items?.ad : `${uh.house_items?.ad} — ${$_('erisilebilirlik.hucre_dolu')}`}
+			on:click={() => itemTıklandı(uh)}
+			on:keydown={(e) => itemTuşaBasıldı(e, uh)}
 		>
 			<circle r="17" class="item-badge-bg" />
-			<svg x="-11" y="-11" width="22" height="22" viewBox="0 0 24 24">
+			<svg x="-11" y="-11" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
 				<EsyaIkon ref={uh.house_items?.görsel_referans} />
 			</svg>
 		</g>
@@ -106,15 +141,24 @@
 	.tile-alt {
 		fill: var(--accent-soft);
 	}
-	.tile:not(.readonly):hover {
+	.tile:not(.readonly):hover,
+	.tile:not(.readonly):focus-visible {
 		fill: var(--gold);
 		opacity: 0.55;
+	}
+	.tile:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: -2px;
 	}
 	.tile.readonly {
 		cursor: default;
 	}
 	.placed-item {
 		cursor: pointer;
+	}
+	.placed-item:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
 	}
 	.placed-item.readonly {
 		cursor: default;

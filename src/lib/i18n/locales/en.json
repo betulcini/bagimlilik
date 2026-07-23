@@ -94,7 +94,8 @@
 		"kilitli": "days needed",
 		"yetersiz_coin": "Not enough coins",
 		"grid_ipucu": "Click a placed item to send it back to your inventory.",
-		"nadir_rozet": "Rare"
+		"nadir_rozet": "Rare",
+		"oda_aria": "Isometric room view"
 	},
 	"kesif": {
 		"baslik": "Other Houses",
@@ -165,5 +166,10 @@
 		"ai_ozet_aciklama": "Tap the button to get a short AI summary and tip based on this period's data.",
 		"pdf_indir": "Download as PDF",
 		"pdf_hazirlaniyor": "Preparing..."
+	},
+	"erisilebilirlik": {
+		"icerige_gec": "Skip to content",
+		"hucre_bos": "Empty cell",
+		"hucre_dolu": "Placed item, select to return to inventory"
 	}
 }

@@ -26,7 +26,13 @@
 
 	<nav class="links">
 		{#each links as link}
-			<a href={link.href} class:active={$page.url.pathname === link.href}>{$_(link.key)}</a>
+			<a
+				href={link.href}
+				class:active={$page.url.pathname === link.href}
+				aria-current={$page.url.pathname === link.href ? 'page' : undefined}
+			>
+				{$_(link.key)}
+			</a>
 		{/each}
 	</nav>
 

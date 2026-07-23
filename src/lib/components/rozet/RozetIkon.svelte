@@ -3,7 +3,7 @@
 	export let kazanildi = true;
 </script>
 
-<svg width="28" height="28" viewBox="0 0 24 24">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
 	<circle cx="12" cy="10" r="7" fill={kazanildi ? renk : 'var(--border)'} />
 	<circle cx="12" cy="10" r="4.6" fill="none" stroke={kazanildi ? 'white' : 'var(--bg)'} stroke-width="1.2" opacity="0.85" />
 	<path

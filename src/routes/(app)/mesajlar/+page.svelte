@@ -7,6 +7,7 @@
 	import { getMesajlar, mesajGönder, anonimEşleş } from '$lib/supabase/messages';
 	import { getEngellenenler, engelle, engelKaldır } from '$lib/supabase/blocks';
 	import { şikayetGönder } from '$lib/supabase/sikayetler';
+	import { focusTrap } from '$lib/actions/focusTrap';
 
 	let habit = null;
 	let mesajlar = [];
@@ -302,8 +303,15 @@
 
 {#if şikayetModalMesajı}
 	<div class="modal-backdrop" on:click|self={() => (şikayetModalMesajı = null)}>
-		<div class="modal">
-			<h3 class="font-display">{$_('mesajlar.sikayet_baslik')}</h3>
+		<div
+			class="modal"
+			use:focusTrap
+			on:escape={() => (şikayetModalMesajı = null)}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="sikayet-modal-baslik"
+		>
+			<h3 id="sikayet-modal-baslik" class="font-display">{$_('mesajlar.sikayet_baslik')}</h3>
 			<p class="muted small">{$_('mesajlar.sikayet_aciklama')}</p>
 			<blockquote class="sikayet-alinti">{şikayetModalMesajı.içerik}</blockquote>
 			<textarea bind:value={şikayetSebebi} placeholder={$_('mesajlar.sikayet_sebep_placeholder')} rows="3"></textarea>
@@ -318,7 +326,7 @@
 {/if}
 
 {#if şikayetTeşekkürGösteriliyor}
-	<div class="sikayet-toast">{$_('mesajlar.sikayet_gonderildi')}</div>
+	<div class="sikayet-toast" role="status" aria-live="polite">{$_('mesajlar.sikayet_gonderildi')}</div>
 {/if}
 
 <style>

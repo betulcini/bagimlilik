@@ -9,6 +9,7 @@
 	import { getBasarimlar, getKullanıcıBasarımları, eksikRozetleriVer } from '$lib/supabase/achievements';
 	import { supabase } from '$lib/supabase/client';
 	import RozetSatiri from '$components/rozet/RozetSatiri.svelte';
+	import { focusTrap } from '$lib/actions/focusTrap';
 
 	let habit = null;
 	let loadingHabit = true;
@@ -300,11 +301,13 @@
 			{#if bugünCheckin}
 				<p class="muted">{moodEmoji[bugünCheckin.mood]} {$_('dashboard.checkin_yapildi')}</p>
 			{:else}
-				<div class="mood-row">
+				<div class="mood-row" role="group" aria-label={$_('dashboard.checkin_baslik')}>
 					{#each [1, 2, 3, 4, 5] as m}
 						<button
 							class="mood-btn"
 							class:selected={seçiliMood === m}
+							aria-pressed={seçiliMood === m}
+							aria-label={$_(`dashboard.mood_${m}`)}
 							on:click={() => (seçiliMood = m)}
 							title={$_(`dashboard.mood_${m}`)}
 						>
@@ -341,15 +344,22 @@
 	</div>
 
 	{#if yeniKazanılanRozetler.length > 0}
-		<div class="rozet-toast">
+		<div class="rozet-toast" role="status" aria-live="polite">
 			🎉 {$_('dashboard.yeni_rozet')}: {yeniKazanılanRozetler.map((r) => r.ad).join(', ')}
 		</div>
 	{/if}
 
 	{#if nüksModalAçık}
 		<div class="modal-backdrop" on:click|self={() => (nüksModalAçık = false)}>
-			<div class="modal">
-				<h3 class="font-display">{$_('dashboard.nuks_baslik')}</h3>
+			<div
+				class="modal"
+				use:focusTrap
+				on:escape={() => (nüksModalAçık = false)}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="nuks-modal-baslik"
+			>
+				<h3 id="nuks-modal-baslik" class="font-display">{$_('dashboard.nuks_baslik')}</h3>
 				<p class="muted">{$_('dashboard.nuks_aciklama')}</p>
 				<textarea bind:value={nüksNotu} placeholder={$_('dashboard.nuks_not')} rows="3"></textarea>
 				{#if errorMsg}<p class="error">{errorMsg}</p>{/if}

@@ -95,7 +95,8 @@
 		"kilitli": "gün gerekli",
 		"yetersiz_coin": "Yetersiz coin",
 		"grid_ipucu": "Yerleştirilmiş bir eşyaya tıklayarak envantere geri alabilirsin.",
-		"nadir_rozet": "Nadir"
+		"nadir_rozet": "Nadir",
+		"oda_aria": "İzometrik oda görünümü"
 	},
 	"kesif": {
 		"baslik": "Diğer Evler",
@@ -166,5 +167,10 @@
 		"ai_ozet_aciklama": "Bu dönemki verilerine göre kısa bir özet ve öneri almak için butona bas.",
 		"pdf_indir": "PDF Olarak İndir",
 		"pdf_hazirlaniyor": "Hazırlanıyor..."
+	},
+	"erisilebilirlik": {
+		"icerige_gec": "İçeriğe geç",
+		"hucre_bos": "Boş hücre",
+		"hucre_dolu": "Yerleştirilmiş eşya, envantere almak için seç"
 	}
 }

@@ -8,9 +8,9 @@
 	}
 </script>
 
-<div class="lang-toggle">
-	<button class:active={$locale === 'tr'} on:click={() => setLocale('tr')}>TR</button>
-	<button class:active={$locale === 'en'} on:click={() => setLocale('en')}>EN</button>
+<div class="lang-toggle" role="group" aria-label="Dil / Language">
+	<button class:active={$locale === 'tr'} aria-pressed={$locale === 'tr'} on:click={() => setLocale('tr')}>TR</button>
+	<button class:active={$locale === 'en'} aria-pressed={$locale === 'en'} on:click={() => setLocale('en')}>EN</button>
 </div>
 
 <style>

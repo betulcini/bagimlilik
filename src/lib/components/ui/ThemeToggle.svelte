@@ -2,7 +2,13 @@
 	import { theme } from '$stores/theme';
 </script>
 
-<button class="toggle" on:click={() => theme.toggle()} aria-label="Temayı değiştir" title="Aydınlık/Karanlık tema">
+<button
+	class="toggle"
+	on:click={() => theme.toggle()}
+	aria-label="Temayı değiştir"
+	aria-pressed={$theme === 'dark'}
+	title="Aydınlık/Karanlık tema"
+>
 	{#if $theme === 'dark'}
 		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 			<circle cx="12" cy="12" r="5" />
