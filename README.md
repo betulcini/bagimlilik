@@ -12,7 +12,7 @@ Supabase tarafında `supabase/schema.sql` dosyasını SQL Editor'de çalıştır
 
 **Yeni kurulum yapıyorsan** yukarıdakiler yeterli (davet sistemi zaten `schema.sql`'in içinde). **Daha önce `schema.sql`'i eski haliyle çalıştırdıysan**, ek olarak `supabase/referral-ve-bonus.sql` dosyasını da çalıştır — bu, mevcut tablolarına davet kodu / bonus coin desteği ekler ve önceden kayıt olmuş kullanıcılara geriye dönük davet kodu + coin satırı atar.
 
-Son olarak `supabase/cihazlar.sql` dosyasını çalıştır — akıllı priz (ESP32) eşleştirme sistemi için gereken tablo ve fonksiyonlar kurulur. Ardından `supabase/basarimlar.sql` dosyasını çalıştır — rozet/başarım kataloğu (24 saat, 3 gün, 1 hafta, 1 ay, 3 ay, 6 ay, 1 yıl) eklenir. Son olarak `supabase/engelleme.sql` dosyasını çalıştır — kullanıcı engelleme sistemi kurulur (mesajlaşma ve anonim eşleştirmede engellenen kullanıcılar hariç tutulur). Ardından `supabase/sikayetler.sql` dosyasını çalıştır — mesaj şikayet sistemi kurulur. Şikayetleri görmek için Supabase panelinde Table Editor'den `sikayetler` tablosuna bakabilirsin (ayrı bir admin paneli yok, bu proje ölçeğinde buna gerek yok).
+Son olarak `supabase/cihazlar.sql` dosyasını çalıştır — akıllı priz (ESP32) eşleştirme sistemi için gereken tablo ve fonksiyonlar kurulur. Ardından `supabase/basarimlar.sql` dosyasını çalıştır — rozet/başarım kataloğu (24 saat, 3 gün, 1 hafta, 1 ay, 3 ay, 6 ay, 1 yıl) eklenir. Son olarak `supabase/engelleme.sql` dosyasını çalıştır — kullanıcı engelleme sistemi kurulur (mesajlaşma ve anonim eşleştirmede engellenen kullanıcılar hariç tutulur). Ardından `supabase/sikayetler.sql` dosyasını çalıştır — mesaj şikayet sistemi kurulur. Son olarak `supabase/nefes.sql` dosyasını çalıştır — Rahatla bölümündeki nefes egzersizi seanslarının kaydı için gereken tablo kurulur. Şikayetleri görmek için Supabase panelinde Table Editor'den `sikayetler` tablosuna bakabilirsin (ayrı bir admin paneli yok, bu proje ölçeğinde buna gerek yok).
 
 ```bash
 npm run dev
@@ -57,6 +57,17 @@ npm test
 ```
 
 Şu an `parsePgIntervalToSeconds` (nüks/seri hesaplama mantığı) ve `cihazÇevrimİçiMi` (cihaz çevrimiçi/çevrimdışı kontrolü) için birim testleri var — bunlar projenin en kolay hata yapılabilecek, saf mantık içeren fonksiyonları. Tüm arayüzü (component/e2e) test eden bir paket değil, bilinçli olarak dar kapsamlı tutuldu.
+
+## Şikayet bildirimleri (opsiyonel)
+
+Biri bir mesajı şikayet ettiğinde, Resend üzerinden sana otomatik bir e-posta gitmesini istersen, Cloudflare panelinde (projenin Settings > Variables and Secrets kısmında, PUBLIC_SUPABASE_URL'i eklediğin yerin aynısında) şu iki değişkeni ekle:
+
+```
+RESEND_API_KEY = re_xxxxxxxx   (Resend hesabından aldığın API key, "Secret" olarak ekle)
+ADMIN_EMAIL = senin-eposta-adresin@gmail.com
+```
+
+Bunlar ayarlanmazsa hiçbir sorun olmaz — şikayet yine `sikayetler` tablosuna kaydediliyor, sadece e-posta bildirimi gitmiyor. Yani bu özellik tamamen opsiyonel bir ek katman, ana işlevi bozmuyor.
 
 ## Cloudflare'e deploy etme
 

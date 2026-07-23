@@ -6,6 +6,7 @@
 		"mesajlar": "Mesajlar",
 		"cihazlar": "Cihazlarım",
 		"rapor": "Rapor",
+		"rahatla": "Rahatla",
 		"cikis": "Çıkış Yap",
 		"logo": "Eve Dön"
 	},
@@ -157,6 +158,8 @@
 		"checkin_orani": "Check-in oranı",
 		"ortalama_mood": "Ortalama ruh hali",
 		"seri_bozma": "Seri bozma sayısı",
+		"nefes_seansi": "Nefes egzersizi",
+		"dakika": "dakika",
 		"mood_grafigi": "Ruh Hali Grafiği",
 		"checkin_yok": "check-in yok",
 		"nuks_gecmisi": "Seri Bozma Geçmişi",
@@ -172,5 +175,24 @@
 		"icerige_gec": "İçeriğe geç",
 		"hucre_bos": "Boş hücre",
 		"hucre_dolu": "Yerleştirilmiş eşya, envantere almak için seç"
+	},
+	"rahatla": {
+		"baslik": "Rahatla",
+		"aciklama": "Bir tetikleyici anında ya da sadece sakinleşmek istediğinde, birkaç dakikalık bir nefes egzersizi dene.",
+		"geri": "← Tekniklere dön",
+		"baslat": "Başlat",
+		"durdur": "Durdur",
+		"sifirla": "Sıfırla",
+		"tur_sayisi": "Tamamlanan tur",
+		"nefes_al": "Nefes Al",
+		"tut": "Tut",
+		"nefes_ver": "Nefes Ver",
+		"teknik_478_ad": "4-7-8 Nefesi",
+		"teknik_478_aciklama": "4 saniye nefes al, 7 saniye tut, 8 saniye ver. Sinir sistemini hızlıca sakinleştirir.",
+		"teknik_kutu_ad": "Kutu Nefesi",
+		"teknik_kutu_aciklama": "4 saniye al, 4 saniye tut, 4 saniye ver, 4 saniye tut. Odaklanmayı ve dengelenmeyi destekler.",
+		"teknik_sakin_ad": "Sakinleştirici Nefes",
+		"teknik_sakin_aciklama": "4 saniye al, 6 saniye ver. Basit ve günlük kullanım için ideal.",
+		"disclaimer": "Bu egzersizler genel rahatlama içindir, tıbbi bir tedavi yerine geçmez. Kendini kötü hissedersen bir uzmana danışmaktan çekinme."
 	}
 }

@@ -9,6 +9,7 @@
 	const links = [
 		{ href: '/dashboard', key: 'nav.dashboard' },
 		{ href: '/ev', key: 'nav.ev' },
+		{ href: '/rahatla', key: 'nav.rahatla' },
 		{ href: '/rapor', key: 'nav.rapor' },
 		{ href: '/kesif', key: 'nav.kesif' },
 		{ href: '/mesajlar', key: 'nav.mesajlar' },

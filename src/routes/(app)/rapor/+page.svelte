@@ -4,6 +4,7 @@
 	import { user } from '$stores/user';
 	import { getActiveHabit } from '$lib/supabase/habits';
 	import { getCheckinsSince, getRelapsesSince } from '$lib/supabase/reports';
+	import { getSeanslarSince } from '$lib/supabase/nefes';
 	import { supabase } from '$lib/supabase/client';
 
 	let habit = null;
@@ -12,6 +13,7 @@
 	let periyot = 7; // 7 = haftalık, 30 = aylık
 	let checkins = [];
 	let relapses = [];
+	let nefesSeansları = [];
 	let aiÖzet = '';
 	let aiYükleniyor = false;
 	let aiHata = '';
@@ -41,9 +43,10 @@
 			sinceDate.setDate(sinceDate.getDate() - (periyot - 1));
 			sinceDate.setHours(0, 0, 0, 0);
 
-			[checkins, relapses] = await Promise.all([
+			[checkins, relapses, nefesSeansları] = await Promise.all([
 				getCheckinsSince(habit.id, sinceDate.toISOString()),
-				getRelapsesSince(habit.id, sinceDate.toISOString())
+				getRelapsesSince(habit.id, sinceDate.toISOString()),
+				getSeanslarSince($user.id, sinceDate.toISOString())
 			]);
 		} catch (e) {
 			errorMsg = e.message;
@@ -75,6 +78,7 @@
 					checkinOrani: checkinOranı,
 					ortalamaMood,
 					seriBozmaSayisi: relapses.length,
+					nefesSeansiSayisi: nefesSeansları.length,
 					tetikleyiciNotlari: tetikleyiciNotlar.map((c) => c.tetikleyici_notu),
 					dil: $locale
 				})
@@ -115,6 +119,7 @@
 			const mtCheckinOrani = dilEN ? 'Check-in Rate' : 'Check-in Oranı';
 			const mtOrtalamaMood = dilEN ? 'Average Mood' : 'Ortalama Ruh Hali';
 			const mtSeriBozma = dilEN ? 'Relapse Count' : 'Seri Bozma Sayısı';
+			const mtNefesSeansi = dilEN ? 'Breathing Sessions' : 'Nefes Egzersizi Seansı';
 			const mtGunlukGecmis = dilEN ? 'Daily Mood Log' : 'Günlük Ruh Hali Kaydı';
 			const mtTarih = dilEN ? 'Date' : 'Tarih';
 			const mtRuhHali = dilEN ? 'Mood' : 'Ruh Hali';
@@ -168,7 +173,8 @@
 						body: [
 							[mtCheckinOrani, `%${checkinOranı} (${yapılanCheckinSayısı}/${günler.length})`],
 							[mtOrtalamaMood, ortalamaMood ?? '—'],
-							[mtSeriBozma, String(relapses.length)]
+							[mtSeriBozma, String(relapses.length)],
+							[mtNefesSeansi, String(nefesSeansları.length)]
 						]
 					},
 					margin: [0, 4, 0, 16]
@@ -267,6 +273,8 @@
 		return (moodlar.reduce((a, b) => a + b, 0) / moodlar.length).toFixed(1);
 	})();
 
+	$: toplamNefesDakikası = Math.round(nefesSeansları.reduce((t, s) => t + s.toplam_saniye, 0) / 60);
+
 	$: tetikleyiciNotlar = checkins
 		.filter((c) => c.tetikleyici_notu && c.tetikleyici_notu.trim())
 		.slice()
@@ -330,6 +338,13 @@
 		<div class="card stat">
 			<span class="stat-label">{$_('rapor.seri_bozma')}</span>
 			<span class="stat-value font-display" class:warn-color={relapses.length > 0}>{relapses.length}</span>
+		</div>
+		<div class="card stat">
+			<span class="stat-label">{$_('rapor.nefes_seansi')}</span>
+			<span class="stat-value font-display">{nefesSeansları.length}</span>
+			{#if nefesSeansları.length > 0}
+				<span class="stat-alt">{toplamNefesDakikası} {$_('rapor.dakika')}</span>
+			{/if}
 		</div>
 	</div>
 

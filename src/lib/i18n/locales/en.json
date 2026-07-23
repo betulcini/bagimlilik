@@ -6,6 +6,7 @@
 		"mesajlar": "Messages",
 		"cihazlar": "My Devices",
 		"rapor": "Report",
+		"rahatla": "Relax",
 		"cikis": "Log Out",
 		"logo": "Go Home"
 	},
@@ -156,6 +157,8 @@
 		"checkin_orani": "Check-in rate",
 		"ortalama_mood": "Average mood",
 		"seri_bozma": "Relapse count",
+		"nefes_seansi": "Breathing sessions",
+		"dakika": "min",
 		"mood_grafigi": "Mood Chart",
 		"checkin_yok": "no check-in",
 		"nuks_gecmisi": "Relapse History",
@@ -171,5 +174,24 @@
 		"icerige_gec": "Skip to content",
 		"hucre_bos": "Empty cell",
 		"hucre_dolu": "Placed item, select to return to inventory"
+	},
+	"rahatla": {
+		"baslik": "Relax",
+		"aciklama": "Try a few minutes of breathing exercise during a trigger moment, or just to calm down.",
+		"geri": "← Back to techniques",
+		"baslat": "Start",
+		"durdur": "Stop",
+		"sifirla": "Reset",
+		"tur_sayisi": "Rounds completed",
+		"nefes_al": "Breathe In",
+		"tut": "Hold",
+		"nefes_ver": "Breathe Out",
+		"teknik_478_ad": "4-7-8 Breathing",
+		"teknik_478_aciklama": "Breathe in for 4s, hold for 7s, out for 8s. Calms the nervous system quickly.",
+		"teknik_kutu_ad": "Box Breathing",
+		"teknik_kutu_aciklama": "In 4s, hold 4s, out 4s, hold 4s. Supports focus and balance.",
+		"teknik_sakin_ad": "Calming Breath",
+		"teknik_sakin_aciklama": "In 4s, out 6s. Simple and good for daily use.",
+		"disclaimer": "These exercises are for general relaxation and are not a substitute for medical treatment. If you feel unwell, don't hesitate to consult a professional."
 	}
 }

@@ -43,7 +43,7 @@ export async function POST({ request, platform }) {
 	}
 
 	const gövde = await request.json();
-	const { periyot, checkinOrani, ortalamaMood, seriBozmaSayisi, tetikleyiciNotlari, dil } = gövde;
+	const { periyot, checkinOrani, ortalamaMood, seriBozmaSayisi, nefesSeansiSayisi, tetikleyiciNotlari, dil } = gövde;
 	const seçiliDil = dil === 'en' ? 'en' : 'tr';
 
 	if (!platform?.env?.AI) {
@@ -69,6 +69,7 @@ export async function POST({ request, platform }) {
 Check-in rate: ${checkinOrani}%
 Average mood (1-5): ${ortalamaMood ?? 'no data'}
 Relapse count: ${seriBozmaSayisi}
+Breathing exercise sessions completed: ${nefesSeansiSayisi ?? 0}
 Trigger notes: ${notlarMetni}
 
 Based on this data, write a short summary/insight for the user.`
@@ -76,6 +77,7 @@ Based on this data, write a short summary/insight for the user.`
 Check-in oranı: %${checkinOrani}
 Ortalama ruh hali (1-5): ${ortalamaMood ?? 'veri yok'}
 Seri bozma (nüks) sayısı: ${seriBozmaSayisi}
+Tamamlanan nefes egzersizi seansı: ${nefesSeansiSayisi ?? 0}
 Tetikleyici notları: ${notlarMetni}
 
 Bu verilere göre kullanıcıya kısa bir özet/içgörü yaz.`;
