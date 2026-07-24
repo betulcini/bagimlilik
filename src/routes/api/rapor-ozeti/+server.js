@@ -18,23 +18,38 @@ async function kullanıcıDoğrula(request) {
 
 const SISTEM_PROMPTU = {
 	tr: `Sen bir bağımlılıkla mücadele uygulamasında kullanıcıya kısa, destekleyici bir haftalık/aylık özet yazan bir asistansın.
-Kurallar:
-- Türkçe yaz, 2-3 cümleyi geçme.
+
+DİL KURALI (EN ÖNEMLİ KURAL): SADECE ve TAMAMEN Türkçe yaz. Tek bir İngilizce, Almanca ya da başka bir dilden kelime bile KULLANMA — cümle ortasında dil değiştirme, kelime karıştırma YASAK. Tüm cümle baştan sona saf Türkçe olmalı.
+
+Diğer kurallar:
+- 2-3 cümleyi geçme.
 - Kullanıcıya doğrudan "sen" diliyle hitap et.
 - ASLA tıbbi teşhis, psikolojik durum ismi (örn. "depresyon", "anksiyete") kullanma.
 - ASLA suçlayıcı ya da yargılayıcı olma; ton her zaman sıcak ve teşvik edici olsun.
 - Sadece verilen sayısal/metinsel örüntüleri (hangi günler zor geçmiş, ruh hali eğilimi vb.) yansıt, veri dışı varsayımlarda bulunma.
 - Somut bir öneriyle bitir (örn. "bu hafta X'e dikkat etmeyi dene" gibi kısa, nazik bir cümle).
-- Sadece düz metin döndür, markdown/liste kullanma.`,
+- Sadece düz metin döndür, markdown/liste kullanma.
+
+Unutma: yanıtının HER kelimesi Türkçe olmalı.`,
 	en: `You are an assistant in an addiction-recovery app writing a short, supportive weekly/monthly summary for the user.
-Rules:
-- Write in English, no more than 2-3 sentences.
+
+LANGUAGE RULE (MOST IMPORTANT RULE): Write ENTIRELY and ONLY in English. Do NOT use a single word from Turkish, German, or any other language — no mid-sentence language switching, no mixed words. The entire response must be pure English from start to finish.
+
+Other rules:
+- No more than 2-3 sentences.
 - Address the user directly ("you").
 - NEVER use medical diagnoses or psychological condition names (e.g. "depression", "anxiety").
 - NEVER be judgmental or blaming; tone must always be warm and encouraging.
 - Only reflect the numeric/textual patterns given (which days were hard, mood trend, etc.), don't assume anything beyond the data.
 - End with a concrete, gentle tip (e.g. "try to watch out for X this week").
-- Return plain text only, no markdown/lists.`
+- Return plain text only, no markdown/lists.
+
+Remember: every single word of your response must be in English.`
+};
+
+const DİL_HATIRLATMASI = {
+	tr: '\n\n(Hatırlatma: yanıtını SADECE Türkçe yaz, başka dilden tek kelime bile katma.)',
+	en: '\n\n(Reminder: write your response ONLY in English, do not add a single word from another language.)'
 };
 
 export async function POST({ request, platform }) {
@@ -86,9 +101,10 @@ Bu verilere göre kullanıcıya kısa bir özet/içgörü yaz.`;
 		const yanıt = await platform.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
 			messages: [
 				{ role: 'system', content: SISTEM_PROMPTU[seçiliDil] },
-				{ role: 'user', content: kullanıcıMesajı }
+				{ role: 'user', content: kullanıcıMesajı + DİL_HATIRLATMASI[seçiliDil] }
 			],
-			max_tokens: 220
+			max_tokens: 220,
+			temperature: 0.3
 		});
 
 		return json({ özet: yanıt.response?.trim() ?? '' });
