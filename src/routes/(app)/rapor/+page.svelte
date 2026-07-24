@@ -99,11 +99,24 @@
 	async function pdfİndir() {
 		pdfOluşturuluyor = true;
 		try {
-			const [{ default: pdfMake }, vfsModül] = await Promise.all([
+			const [pdfMakeModülü, vfsModülü] = await Promise.all([
 				import('pdfmake/build/pdfmake'),
 				import('pdfmake/build/vfs_fonts')
 			]);
-			pdfMake.vfs = vfsModül.pdfMake?.vfs ?? vfsModül.default?.pdfMake?.vfs;
+
+			// pdfmake'in build çıktısı bazen "default" altında, bazen doğrudan modülün
+			// kendisinde geliyor (bundler'a göre değişiyor) — ikisini de deniyoruz.
+			const pdfMake = pdfMakeModülü.default ?? pdfMakeModülü;
+			const vfsKaynağı = vfsModülü.default ?? vfsModülü;
+			const vfs = vfsKaynağı?.pdfMake?.vfs ?? vfsKaynağı?.vfs ?? vfsModülü.pdfMake?.vfs;
+
+			if (!pdfMake?.createPdf) {
+				throw new Error('pdfmake kütüphanesi doğru yüklenemedi (createPdf bulunamadı).');
+			}
+			if (!vfs) {
+				throw new Error('pdfmake font verisi (vfs) bulunamadı.');
+			}
+			pdfMake.vfs = vfs;
 
 			const dilEN = $locale === 'en';
 			const periyotMetni = periyot === 7 ? $_('rapor.haftalik') : $_('rapor.aylik');

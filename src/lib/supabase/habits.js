@@ -16,7 +16,10 @@ export async function getActiveHabit(userId) {
 }
 
 /** Yeni bir alışkanlık kaydı oluşturur ve aktif yapar. */
-export async function createHabit(userId, { alışkanlık_adı, başlangıç_tarihi, günlük_tasarruf_miktarı }) {
+export async function createHabit(
+	userId,
+	{ alışkanlık_adı, başlangıç_tarihi, günlük_tasarruf_miktarı, hedef_gun_sayisi }
+) {
 	const { data, error } = await supabase
 		.from('habits')
 		.insert({
@@ -24,6 +27,7 @@ export async function createHabit(userId, { alışkanlık_adı, başlangıç_tar
 			alışkanlık_adı,
 			başlangıç_tarihi,
 			günlük_tasarruf_miktarı: günlük_tasarruf_miktarı ?? 0,
+			hedef_gun_sayisi: hedef_gun_sayisi ?? null,
 			aktif_mi: true,
 			en_uzun_seri: '0'
 		})
@@ -65,6 +69,18 @@ export async function recordRelapse(habit, not_) {
 		.select()
 		.single();
 
+	if (error) throw error;
+	return data;
+}
+
+/** Seri hedefini sonradan değiştirmek/kaldırmak için. */
+export async function hedefGüncelle(habitId, hedefGunSayisi) {
+	const { data, error } = await supabase
+		.from('habits')
+		.update({ hedef_gun_sayisi: hedefGunSayisi ?? null })
+		.eq('id', habitId)
+		.select()
+		.single();
 	if (error) throw error;
 	return data;
 }

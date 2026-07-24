@@ -2,7 +2,13 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { _, locale } from 'svelte-i18n';
 	import { user } from '$stores/user';
-	import { getActiveHabit, createHabit, recordRelapse, parsePgIntervalToSeconds } from '$lib/supabase/habits';
+	import {
+		getActiveHabit,
+		createHabit,
+		recordRelapse,
+		parsePgIntervalToSeconds,
+		hedefGüncelle
+	} from '$lib/supabase/habits';
 	import { getTodayCheckin, addCheckin } from '$lib/supabase/checkins';
 	import { getDavetProfil, getBonusBakiye, anasayfaBonusuVerVarsaGerek, ANASAYFA_BONUS } from '$lib/supabase/coins';
 	import { nükstePrizleriKapat } from '$lib/supabase/devices';
@@ -27,6 +33,9 @@
 	let yeniAlışkanlıkAdı = '';
 	let yeniBaşlangıç = new Date().toISOString().slice(0, 16); // datetime-local formatı
 	let yeniTasarruf = '';
+	let yeniHedef = '';
+	let hedefDüzenleAçık = false;
+	let hedefInput = '';
 	let kaydediliyor = false;
 
 	// canlı sayaç
@@ -137,12 +146,24 @@
 			habit = await createHabit($user.id, {
 				alışkanlık_adı: yeniAlışkanlıkAdı.trim(),
 				başlangıç_tarihi: new Date(yeniBaşlangıç).toISOString(),
-				günlük_tasarruf_miktarı: yeniTasarruf ? parseFloat(yeniTasarruf) : 0
+				günlük_tasarruf_miktarı: yeniTasarruf ? parseFloat(yeniTasarruf) : 0,
+				hedef_gun_sayisi: yeniHedef ? parseInt(yeniHedef, 10) : null
 			});
 		} catch (e) {
 			errorMsg = e.message;
 		} finally {
 			kaydediliyor = false;
+		}
+	}
+
+	async function hedefKaydet() {
+		if (!habit) return;
+		try {
+			const yeni = hedefInput ? parseInt(hedefInput, 10) : null;
+			habit = await hedefGüncelle(habit.id, yeni);
+			hedefDüzenleAçık = false;
+		} catch (e) {
+			errorMsg = e.message;
 		}
 	}
 
@@ -186,6 +207,8 @@
 	$: enUzunGün = Math.floor(enUzunSaniye / 86400);
 
 	$: kazanılanCoin = gün * GÜNLÜK_COIN;
+	$: hedefYüzde =
+		habit?.hedef_gun_sayisi ? Math.min(100, Math.round((gün / habit.hedef_gun_sayisi) * 100)) : 0;
 	$: birikenTasarruf = habit ? (gün * (habit.günlük_tasarruf_miktarı ?? 0)).toFixed(2) : '0.00';
 
 	const moodEmoji = { 1: '😞', 2: '🙁', 3: '😐', 4: '🙂', 5: '😄' };
@@ -238,6 +261,10 @@
 				{$_('dashboard.günlük_tasarruf')}
 				<input type="number" min="0" step="0.01" bind:value={yeniTasarruf} placeholder="0" />
 			</label>
+			<label>
+				{$_('dashboard.seri_hedefi')}
+				<input type="number" min="1" step="1" bind:value={yeniHedef} placeholder={$_('dashboard.seri_hedefi_placeholder')} />
+			</label>
 
 			{#if errorMsg}<p class="error">{errorMsg}</p>{/if}
 
@@ -268,6 +295,33 @@
 					<span class="counter-label">{$_('dashboard.saniye')}</span>
 				</div>
 			</div>
+
+			{#if habit.hedef_gun_sayisi && !hedefDüzenleAçık}
+				<div class="hedef-alani">
+					<div class="hedef-ust">
+						<span>{gün} / {habit.hedef_gun_sayisi} {$_('dashboard.gun')}</span>
+						<button class="hedef-duzenle-link" on:click={() => ((hedefInput = habit.hedef_gun_sayisi), (hedefDüzenleAçık = true))}>
+							{$_('dashboard.hedef_degistir')}
+						</button>
+					</div>
+					<div class="hedef-bar-arkaplan">
+						<div class="hedef-bar-dolu" style="width: {hedefYüzde}%"></div>
+					</div>
+					{#if gün >= habit.hedef_gun_sayisi}
+						<p class="hedef-tamamlandi">🎉 {$_('dashboard.hedef_tamamlandi')}</p>
+					{/if}
+				</div>
+			{:else if hedefDüzenleAçık}
+				<div class="hedef-duzenle-satiri">
+					<input type="number" min="1" step="1" bind:value={hedefInput} placeholder={$_('dashboard.seri_hedefi_placeholder')} />
+					<button class="btn-primary" on:click={hedefKaydet}>{$_('dashboard.kaydet')}</button>
+					<button class="btn-ghost" on:click={() => (hedefDüzenleAçık = false)}>{$_('dashboard.vazgec')}</button>
+				</div>
+			{:else}
+				<button class="hedef-belirle-link" on:click={() => (hedefDüzenleAçık = true)}>
+					+ {$_('dashboard.seri_hedefi')}
+				</button>
+			{/if}
 
 			<button class="btn-relapse" on:click={() => (nüksModalAçık = true)}>
 				{$_('dashboard.nuks_buton')}
@@ -470,6 +524,69 @@
 	.btn-relapse:hover {
 		background: var(--warn);
 		color: white;
+	}
+
+	.hedef-alani {
+		width: 100%;
+		max-width: 320px;
+		margin-top: 20px;
+	}
+	.hedef-ust {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.82rem;
+		color: var(--text-muted);
+		margin-bottom: 6px;
+	}
+	.hedef-bar-arkaplan {
+		width: 100%;
+		height: 8px;
+		border-radius: 999px;
+		background: var(--border);
+		overflow: hidden;
+	}
+	.hedef-bar-dolu {
+		height: 100%;
+		background: var(--accent);
+		border-radius: 999px;
+		transition: width 0.3s ease;
+	}
+	.hedef-tamamlandi {
+		margin: 8px 0 0;
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: var(--accent);
+		text-align: center;
+	}
+	.hedef-duzenle-link,
+	.hedef-belirle-link {
+		border: none;
+		background: transparent;
+		color: var(--accent);
+		font-size: 0.78rem;
+		font-weight: 600;
+		cursor: pointer;
+		padding: 0;
+		margin-top: 16px;
+	}
+	.hedef-duzenle-satiri {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		margin-top: 16px;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+	.hedef-duzenle-satiri input {
+		width: 90px;
+		font-family: inherit;
+		font-size: 0.85rem;
+		padding: 8px 10px;
+		border-radius: 8px;
+		border: 1px solid var(--border);
+		background: var(--bg);
+		color: var(--text);
 	}
 
 	.dashboard-grid {

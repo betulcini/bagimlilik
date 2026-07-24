@@ -22,7 +22,8 @@ create table public.habits (
 	başlangıç_tarihi timestamptz not null,
 	günlük_tasarruf_miktarı numeric(10, 2) default 0,
 	aktif_mi boolean not null default true,
-	en_uzun_seri interval not null default '0'
+	en_uzun_seri interval not null default '0',
+	hedef_gun_sayisi integer
 );
 
 create table public.relapses (
