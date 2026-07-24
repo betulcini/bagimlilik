@@ -96,6 +96,18 @@
 		}
 	}
 
+	/** vfs (font) verisini modülün içinde, şekli ne olursa olsun bulmaya çalışır. */
+	function vfsBul(vfsModülü) {
+		const aday = vfsModülü.default ?? vfsModülü;
+		if (!aday || typeof aday !== 'object') return null;
+
+		if (aday.pdfMake?.vfs && Object.keys(aday.pdfMake.vfs).length > 0) return aday.pdfMake.vfs;
+		if (aday.vfs && Object.keys(aday.vfs).length > 0) return aday.vfs;
+		// Bu pdfmake sürümünde modülün kendisi doğrudan vfs haritası (dosya adı -> base64) oluyor.
+		if (Object.keys(aday).length > 0) return aday;
+		return null;
+	}
+
 	async function pdfİndir() {
 		pdfOluşturuluyor = true;
 		try {
@@ -107,14 +119,14 @@
 			// pdfmake'in build çıktısı bazen "default" altında, bazen doğrudan modülün
 			// kendisinde geliyor (bundler'a göre değişiyor) — ikisini de deniyoruz.
 			const pdfMake = pdfMakeModülü.default ?? pdfMakeModülü;
-			const vfsKaynağı = vfsModülü.default ?? vfsModülü;
-			const vfs = vfsKaynağı?.pdfMake?.vfs ?? vfsKaynağı?.vfs ?? vfsModülü.pdfMake?.vfs;
+			const vfs = vfsBul(vfsModülü);
 
 			if (!pdfMake?.createPdf) {
 				throw new Error('pdfmake kütüphanesi doğru yüklenemedi (createPdf bulunamadı).');
 			}
 			if (!vfs) {
-				throw new Error('pdfmake font verisi (vfs) bulunamadı.');
+				console.error('pdfmake vfs modülü şekli:', vfsModülü);
+				throw new Error('pdfmake font verisi (vfs) bulunamadı. Konsoldaki modül şeklini kontrol et.');
 			}
 			pdfMake.vfs = vfs;
 
