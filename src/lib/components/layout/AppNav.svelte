@@ -112,13 +112,14 @@
 			width: 100%;
 			justify-content: center;
 			flex-wrap: wrap;
+			gap: 2px;
 			row-gap: 4px;
 			padding-top: 8px;
 			border-top: 1px solid var(--border);
 		}
 		.links a {
-			padding: 6px 8px;
-			font-size: 0.75rem;
+			padding: 6px 7px;
+			font-size: 0.7rem;
 			white-space: nowrap;
 		}
 	}
