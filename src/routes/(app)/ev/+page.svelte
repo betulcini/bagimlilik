@@ -5,9 +5,15 @@
 	import { getActiveHabit } from '$lib/supabase/habits';
 	import { getHouseItems, getUserHouse, purchaseItem, placeItem, pickUpItem } from '$lib/supabase/house';
 	import { getBonusBakiye } from '$lib/supabase/coins';
+	import { getDiğerProfiller, getTopluUserHouse } from '$lib/supabase/social';
+	import { getBasarimlar, getKullanıcıBasarımları } from '$lib/supabase/achievements';
 	import OdaGorunumu from '$components/ev/OdaGorunumu.svelte';
 	import EsyaIkon from '$components/ev/EsyaIkon.svelte';
+	import RozetSatiri from '$components/rozet/RozetSatiri.svelte';
 
+	let sekme = 'evim'; // 'evim' | 'kesif'
+
+	// ================= Benim Evim =================
 	let habit = null;
 	let items = [];
 	let userHouse = [];
@@ -90,95 +96,212 @@
 		}
 	}
 
+	// ================= Keşfet =================
+	let kesifYüklendi = false;
+	let kesifLoading = false;
+	let kesifErrorMsg = '';
+	let profiller = [];
+	let evlerByUser = {};
+	let seçiliProfil = null;
+	let rozetKataloglar = [];
+	let seçiliProfilRozetIdler = new Set();
+
+	async function sekmeDeğiştir(yeni) {
+		sekme = yeni;
+		if (yeni === 'kesif' && !kesifYüklendi) {
+			kesifYüklendi = true;
+			kesifLoading = true;
+			try {
+				profiller = await getDiğerProfiller($user.id);
+				const userIdList = profiller.map((p) => p.id);
+				const tümEşyalar = await getTopluUserHouse(userIdList);
+				evlerByUser = tümEşyalar.reduce((acc, uh) => {
+					(acc[uh.user_id] ??= []).push(uh);
+					return acc;
+				}, {});
+				rozetKataloglar = await getBasarimlar();
+			} catch (e) {
+				kesifErrorMsg = e.message;
+			} finally {
+				kesifLoading = false;
+			}
+		}
+	}
+
+	async function profilSeç(profil) {
+		seçiliProfil = profil;
+		seçiliProfilRozetIdler = new Set();
+		try {
+			const rozetler = await getKullanıcıBasarımları(profil.id);
+			seçiliProfilRozetIdler = new Set(rozetler.map((r) => r.achievement_id));
+		} catch (e) {
+			kesifErrorMsg = e.message;
+		}
+	}
+
+	function eşyaSayısı(profileId) {
+		return (evlerByUser[profileId] ?? []).filter((uh) => uh.konum_x !== -1).length;
+	}
+
 	// eşya ikonları artık EsyaIkon.svelte içinde (emoji yerine SVG, cihazdan bağımsız görünür)
 </script>
 
 <svelte:head>
-	<title>{$_('nav.ev')}</title>
+	<title>{sekme === 'evim' ? $_('nav.ev') : $_('nav.kesif')}</title>
 </svelte:head>
 
-{#if loading}
-	<p class="muted">…</p>
-{:else if !habit}
-	<div class="card empty-state">
-		<p>{$_('ev.habit_yok')}</p>
-		<a class="btn-primary" href="/dashboard">{$_('ev.habit_yok_link')}</a>
-	</div>
-{:else}
-	<div class="ev-layout">
-		<div class="room-column">
-			<div class="balance-bar">
-				<span class="balance-label">{$_('ev.bakiye')}</span>
-				<span class="balance-value font-display">🪙 {bakiye}</span>
-			</div>
+<div class="sekme-toggle" role="tablist">
+	<button role="tab" aria-selected={sekme === 'evim'} class:active={sekme === 'evim'} on:click={() => sekmeDeğiştir('evim')}>
+		{$_('nav.ev')}
+	</button>
+	<button role="tab" aria-selected={sekme === 'kesif'} class:active={sekme === 'kesif'} on:click={() => sekmeDeğiştir('kesif')}>
+		{$_('nav.kesif')}
+	</button>
+</div>
 
-			{#if errorMsg}<p class="error">{errorMsg}</p>{/if}
-
-			<div class="room-card">
-				<OdaGorunumu {yerleşmişler} on:tileClick={hücreyeYerleştir} on:itemClick={(e) => eşyayıEnvantereAl(e.detail)} />
-			</div>
-			<p class="hint">{$_('ev.grid_ipucu')}</p>
+{#if sekme === 'evim'}
+	{#if loading}
+		<p class="muted">…</p>
+	{:else if !habit}
+		<div class="card empty-state">
+			<p>{$_('ev.habit_yok')}</p>
+			<a class="btn-primary" href="/dashboard">{$_('ev.habit_yok_link')}</a>
 		</div>
+	{:else}
+		<div class="ev-layout">
+			<div class="room-column">
+				<div class="balance-bar">
+					<span class="balance-label">{$_('ev.bakiye')}</span>
+					<span class="balance-value font-display">🪙 {bakiye}</span>
+				</div>
 
-		<aside class="side-column">
-			<section class="card">
-				<h2 class="font-display">{$_('ev.envanter_baslik')}</h2>
-				{#if envanter.length === 0}
-					<p class="muted small">{$_('ev.envanter_bos')}</p>
-				{:else}
-					<p class="hint small">{$_('ev.envanter_ipucu')}</p>
-					<div class="inventory-list">
-						{#each envanter as uh (uh.id)}
-							<button
-								class="inventory-chip"
-								class:selected={seçiliEnvanterId === uh.id}
-								on:click={() => envanterÖğesineTıkla(uh)}
-							>
-								<svg width="18" height="18" viewBox="0 0 24 24"><EsyaIkon ref={uh.house_items?.görsel_referans} /></svg>
-								{uh.house_items?.ad}
-							</button>
+				{#if errorMsg}<p class="error">{errorMsg}</p>{/if}
+
+				<div class="room-card">
+					<OdaGorunumu {yerleşmişler} on:tileClick={hücreyeYerleştir} on:itemClick={(e) => eşyayıEnvantereAl(e.detail)} />
+				</div>
+				<p class="hint">{$_('ev.grid_ipucu')}</p>
+			</div>
+
+			<aside class="side-column">
+				<section class="card">
+					<h2 class="font-display">{$_('ev.envanter_baslik')}</h2>
+					{#if envanter.length === 0}
+						<p class="muted small">{$_('ev.envanter_bos')}</p>
+					{:else}
+						<p class="hint small">{$_('ev.envanter_ipucu')}</p>
+						<div class="inventory-list">
+							{#each envanter as uh (uh.id)}
+								<button
+									class="inventory-chip"
+									class:selected={seçiliEnvanterId === uh.id}
+									on:click={() => envanterÖğesineTıkla(uh)}
+								>
+									<svg width="18" height="18" viewBox="0 0 24 24"><EsyaIkon ref={uh.house_items?.görsel_referans} /></svg>
+									{uh.house_items?.ad}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</section>
+
+				<section class="card">
+					<h2 class="font-display">{$_('ev.magaza_baslik')}</h2>
+					<div class="shop-list">
+						{#each items as item (item.id)}
+							{@const sahip = sahipOlunanItemIdleri.has(item.id)}
+							{@const kilitli = gün < item.gerekli_gün_sayısı}
+							<div class="shop-item" class:nadir={item.nadir_mi}>
+								<svg class="shop-emoji" width="26" height="26" viewBox="0 0 24 24"><EsyaIkon ref={item.görsel_referans} /></svg>
+								<div class="shop-info">
+									<span class="shop-name">
+										{item.ad}
+										{#if item.nadir_mi}<span class="badge-nadir">{$_('ev.nadir_rozet')}</span>{/if}
+									</span>
+									<span class="shop-price">🪙 {item.fiyat}</span>
+								</div>
+								{#if sahip}
+									<span class="shop-status owned">{$_('ev.sahipsin')}</span>
+								{:else if kilitli}
+									<span class="shop-status locked">🔒 {item.gerekli_gün_sayısı} {$_('ev.kilitli')}</span>
+								{:else}
+									<button
+										class="btn-buy"
+										disabled={bakiye < item.fiyat || işlemDevamEdiyor}
+										on:click={() => eşyaSatınAl(item)}
+									>
+										{$_('ev.satin_al')}
+									</button>
+								{/if}
+							</div>
 						{/each}
 					</div>
-				{/if}
-			</section>
-
-			<section class="card">
-				<h2 class="font-display">{$_('ev.magaza_baslik')}</h2>
-				<div class="shop-list">
-					{#each items as item (item.id)}
-						{@const sahip = sahipOlunanItemIdleri.has(item.id)}
-						{@const kilitli = gün < item.gerekli_gün_sayısı}
-						<div class="shop-item" class:nadir={item.nadir_mi}>
-							<svg class="shop-emoji" width="26" height="26" viewBox="0 0 24 24"><EsyaIkon ref={item.görsel_referans} /></svg>
-							<div class="shop-info">
-								<span class="shop-name">
-									{item.ad}
-									{#if item.nadir_mi}<span class="badge-nadir">{$_('ev.nadir_rozet')}</span>{/if}
-								</span>
-								<span class="shop-price">🪙 {item.fiyat}</span>
-							</div>
-							{#if sahip}
-								<span class="shop-status owned">{$_('ev.sahipsin')}</span>
-							{:else if kilitli}
-								<span class="shop-status locked">🔒 {item.gerekli_gün_sayısı} {$_('ev.kilitli')}</span>
-							{:else}
-								<button
-									class="btn-buy"
-									disabled={bakiye < item.fiyat || işlemDevamEdiyor}
-									on:click={() => eşyaSatınAl(item)}
-								>
-									{$_('ev.satin_al')}
-								</button>
-							{/if}
-						</div>
-					{/each}
-				</div>
-			</section>
-		</aside>
+				</section>
+			</aside>
+		</div>
+	{/if}
+{:else}
+	<div class="kesif-header">
+		<p class="muted">{$_('kesif.aciklama')}</p>
 	</div>
+
+	{#if kesifErrorMsg}<p class="error">{kesifErrorMsg}</p>{/if}
+
+	{#if kesifLoading}
+		<p class="muted">…</p>
+	{:else if seçiliProfil}
+		<button class="geri-btn" on:click={() => (seçiliProfil = null)}>{$_('kesif.geri')}</button>
+		<div class="detay-card">
+			<div class="detay-header">
+				<span class="avatar">{seçiliProfil.kullanici_adi.slice(0, 1).toUpperCase()}</span>
+				<span class="detay-isim font-display">{seçiliProfil.kullanici_adi}</span>
+			</div>
+			<div class="room-card">
+				<OdaGorunumu yerleşmişler={(evlerByUser[seçiliProfil.id] ?? []).filter((uh) => uh.konum_x !== -1)} readonly />
+			</div>
+			{#if seçiliProfilRozetIdler.size > 0}
+				<div class="detay-rozetler">
+					<RozetSatiri kataloglar={rozetKataloglar} kazanılmışIdler={seçiliProfilRozetIdler} />
+				</div>
+			{/if}
+		</div>
+	{:else if profiller.length === 0}
+		<p class="muted">{$_('kesif.bos')}</p>
+	{:else}
+		<div class="gallery-grid">
+			{#each profiller as profil (profil.id)}
+				<button class="gallery-card" on:click={() => profilSeç(profil)}>
+					<span class="avatar">{profil.kullanici_adi.slice(0, 1).toUpperCase()}</span>
+					<span class="gallery-isim">{profil.kullanici_adi}</span>
+					<span class="gallery-esya muted">{eşyaSayısı(profil.id)} {$_('kesif.esya_sayisi')}</span>
+				</button>
+			{/each}
+		</div>
+	{/if}
 {/if}
 
 <style>
+	.sekme-toggle {
+		display: inline-flex;
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		overflow: hidden;
+		margin-bottom: 20px;
+	}
+	.sekme-toggle button {
+		border: none;
+		background: var(--bg-elevated);
+		color: var(--text-muted);
+		font-weight: 600;
+		font-size: 0.85rem;
+		padding: 9px 22px;
+		cursor: pointer;
+	}
+	.sekme-toggle button.active {
+		background: var(--accent);
+		color: var(--bg-elevated);
+	}
+
 	.card {
 		background: var(--bg-elevated);
 		border: 1px solid var(--border);
@@ -358,6 +481,82 @@
 	.btn-buy:disabled {
 		opacity: 0.5;
 		cursor: default;
+	}
+
+	.kesif-header {
+		margin-bottom: 20px;
+	}
+
+	.gallery-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		gap: 16px;
+	}
+	.gallery-card {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		background: var(--bg-elevated);
+		border: 1px solid var(--border);
+		border-radius: 14px;
+		padding: 22px 16px;
+		cursor: pointer;
+		font-family: inherit;
+	}
+	.gallery-card:hover {
+		border-color: var(--accent);
+	}
+	.avatar {
+		width: 48px;
+		height: 48px;
+		border-radius: 999px;
+		background: var(--accent-soft);
+		color: var(--accent);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		font-size: 1.1rem;
+	}
+	.gallery-isim {
+		font-weight: 600;
+		font-size: 0.95rem;
+		color: var(--text);
+	}
+	.gallery-esya {
+		font-size: 0.78rem;
+	}
+
+	.geri-btn {
+		border: none;
+		background: transparent;
+		color: var(--accent);
+		font-weight: 600;
+		font-size: 0.9rem;
+		cursor: pointer;
+		padding: 0 0 16px;
+	}
+	.detay-card {
+		background: var(--bg-elevated);
+		border: 1px solid var(--border);
+		border-radius: 16px;
+		padding: 24px;
+	}
+	.detay-header {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-bottom: 20px;
+	}
+	.detay-isim {
+		font-size: 1.2rem;
+		font-weight: 500;
+	}
+	.detay-rozetler {
+		margin-top: 20px;
+		padding-top: 20px;
+		border-top: 1px solid var(--border);
 	}
 
 	@media (max-width: 860px) {

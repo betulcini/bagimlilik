@@ -11,7 +11,6 @@
 		{ href: '/ev', key: 'nav.ev' },
 		{ href: '/rahatla', key: 'nav.rahatla' },
 		{ href: '/rapor', key: 'nav.rapor' },
-		{ href: '/kesif', key: 'nav.kesif' },
 		{ href: '/mesajlar', key: 'nav.mesajlar' },
 		{ href: '/cihazlar', key: 'nav.cihazlar' }
 	];
