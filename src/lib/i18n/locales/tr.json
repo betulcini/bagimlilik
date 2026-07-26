@@ -152,7 +152,18 @@
 		"sil": "Sil",
 		"nukste_otomatik": "Nüks ettiğimde bu cihazı otomatik kapat",
 		"cihaz_yok": "Henüz bir cihaz eklemedin.",
-		"firmware_bilgi": "Cihazı fiziksel olarak kurunca, projedeki /firmware/esp32-akilli-priz klasöründeki örnek kodu kullanabilirsin."
+		"firmware_bilgi": "Cihazı fiziksel olarak kurunca, projedeki /firmware/esp32-akilli-priz klasöründeki örnek kodu kullanabilirsin.",
+		"kategori": "Kategori",
+		"kategori_oyun_konsolu": "Oyun Konsolu",
+		"kategori_bilgisayar": "Bilgisayar",
+		"kategori_akilli_tv": "Akıllı TV",
+		"kategori_modem": "Modem",
+		"kategori_diger": "Diğer",
+		"gunluk_limit": "Günlük süre limiti (dakika)",
+		"kalan_sure": "Kalan süre",
+		"sure_doldu": "Süre doldu",
+		"sure_ekle": "+15 Dk Ekle (1 coin)",
+		"sure_yetersiz_coin": "Süre eklemek için yeterli coin'in yok."
 	},
 	"rapor": {
 		"baslik": "Gelişim Raporum",

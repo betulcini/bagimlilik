@@ -1,17 +1,46 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { user } from '$stores/user';
-	import { getCihazlar, cihazEkle, cihazGüncelle, cihazSil, cihazÇevrimİçiMi } from '$lib/supabase/devices';
+	import {
+		getCihazlar,
+		cihazEkle,
+		cihazGüncelle,
+		cihazSil,
+		cihazÇevrimİçiMi,
+		cihazKalanSaniye,
+		cihazSureEkle
+	} from '$lib/supabase/devices';
+
+	const kategoriler = ['Oyun Konsolu', 'Bilgisayar', 'Akıllı TV', 'Modem', 'Diğer'];
+	const kategoriIkon = {
+		'Oyun Konsolu': '/cihazlar/oyun-konsolu.svg',
+		Bilgisayar: '/cihazlar/bilgisayar.svg',
+		'Akıllı TV': '/cihazlar/akilli-tv.svg',
+		Modem: '/cihazlar/modem.svg'
+	};
+	const kategoriI18nAnahtarı = {
+		'Oyun Konsolu': 'cihazlar.kategori_oyun_konsolu',
+		Bilgisayar: 'cihazlar.kategori_bilgisayar',
+		'Akıllı TV': 'cihazlar.kategori_akilli_tv',
+		Modem: 'cihazlar.kategori_modem',
+		Diğer: 'cihazlar.kategori_diger'
+	};
 
 	let cihazlar = [];
 	let loading = true;
 	let errorMsg = '';
 	let yeniCihazAdı = '';
+	let yeniKategori = 'Oyun Konsolu';
+	let yeniLimit = '60';
 	let ekleniyor = false;
 	let kopyalananId = null;
+	let süreEkleniyorId = null;
+	let şimdi = Date.now();
+	let interval;
 
 	onMount(async () => {
+		interval = setInterval(() => (şimdi = Date.now()), 1000);
 		if (!$user) return;
 		try {
 			cihazlar = await getCihazlar($user.id);
@@ -22,12 +51,34 @@
 		}
 	});
 
+	onDestroy(() => {
+		if (interval) clearInterval(interval);
+	});
+
+	// her saniye (şimdi değiştikçe) tüm cihazların kalan süresini yeniden hesapla
+	$: kalanSüreMap = (() => {
+		void şimdi;
+		const harita = new Map();
+		for (const c of cihazlar) harita.set(c.id, cihazKalanSaniye(c));
+		return harita;
+	})();
+
+	function süreFormatla(saniye) {
+		const dk = Math.floor(saniye / 60);
+		const sn = saniye % 60;
+		return `${dk}:${String(sn).padStart(2, '0')}`;
+	}
+
 	async function ekle() {
 		if (!yeniCihazAdı.trim() || ekleniyor) return;
 		ekleniyor = true;
 		errorMsg = '';
 		try {
-			const yeni = await cihazEkle($user.id, yeniCihazAdı.trim());
+			const yeni = await cihazEkle($user.id, {
+				cihaz_adı: yeniCihazAdı.trim(),
+				kategori: yeniKategori,
+				limit_dakika: yeniLimit ? parseInt(yeniLimit, 10) : 60
+			});
 			cihazlar = [...cihazlar, yeni];
 			yeniCihazAdı = '';
 		} catch (e) {
@@ -39,10 +90,26 @@
 
 	async function fişiDeğiştir(cihaz) {
 		try {
-			const güncel = await cihazGüncelle(cihaz.id, { fiş_kapali: !cihaz.fiş_kapali });
+			const güncel = await cihazGüncelle(cihaz.id, {
+				fiş_kapali: !cihaz.fiş_kapali,
+				...(cihaz.fiş_kapali ? { baslangic_zamani: new Date().toISOString() } : {})
+			});
 			cihazlar = cihazlar.map((c) => (c.id === güncel.id ? güncel : c));
 		} catch (e) {
 			errorMsg = e.message;
+		}
+	}
+
+	async function süreEkle(cihaz) {
+		süreEkleniyorId = cihaz.id;
+		errorMsg = '';
+		try {
+			const güncel = await cihazSureEkle(cihaz.id, $user.id, 15);
+			cihazlar = cihazlar.map((c) => (c.id === güncel.id ? güncel : c));
+		} catch (e) {
+			errorMsg = e.message.includes('coin') ? $_('cihazlar.sure_yetersiz_coin') : e.message;
+		} finally {
+			süreEkleniyorId = null;
 		}
 	}
 
@@ -92,7 +159,24 @@
 	<div class="card ekle-card">
 		<h2 class="font-display">{$_('cihazlar.yeni_cihaz')}</h2>
 		<form on:submit|preventDefault={ekle}>
-			<input type="text" bind:value={yeniCihazAdı} placeholder={$_('cihazlar.cihaz_adi_placeholder')} />
+			<div class="form-row">
+				<label>
+					{$_('cihazlar.cihaz_adi')}
+					<input type="text" bind:value={yeniCihazAdı} placeholder={$_('cihazlar.cihaz_adi_placeholder')} />
+				</label>
+				<label>
+					{$_('cihazlar.kategori')}
+					<select bind:value={yeniKategori}>
+						{#each kategoriler as kategori}
+							<option value={kategori}>{$_(kategoriI18nAnahtarı[kategori])}</option>
+						{/each}
+					</select>
+				</label>
+				<label class="limit-alani">
+					{$_('cihazlar.gunluk_limit')}
+					<input type="number" min="1" step="1" bind:value={yeniLimit} />
+				</label>
+			</div>
 			<button class="btn-primary" type="submit" disabled={!yeniCihazAdı.trim() || ekleniyor}>
 				{$_('cihazlar.ekle')}
 			</button>
@@ -105,13 +189,36 @@
 		<div class="cihaz-list">
 			{#each cihazlar as cihaz (cihaz.id)}
 				{@const çevrimİçi = cihazÇevrimİçiMi(cihaz)}
+				{@const kalan = kalanSüreMap.get(cihaz.id) ?? 0}
 				<div class="card cihaz-card">
 					<div class="cihaz-top">
-						<span class="cihaz-adi font-display">{cihaz.cihaz_adı}</span>
+						<div class="cihaz-kimlik">
+							{#if kategoriIkon[cihaz.kategori]}
+								<img class="cihaz-ikon" src={kategoriIkon[cihaz.kategori]} alt="" />
+							{:else}
+								<span class="cihaz-ikon-yedek">{cihaz.cihaz_adı.slice(0, 1).toUpperCase()}</span>
+							{/if}
+							<div class="cihaz-isim-satiri">
+								<span class="cihaz-adi font-display">{cihaz.cihaz_adı}</span>
+								<span class="cihaz-kategori muted small">
+									{$_(kategoriI18nAnahtarı[cihaz.kategori] ?? 'cihazlar.kategori_diger')}
+								</span>
+							</div>
+						</div>
 						<span class="durum-badge" class:online={çevrimİçi}>
 							<span class="durum-nokta"></span>
 							{çevrimİçi ? $_('cihazlar.cevrimici') : $_('cihazlar.cevrimdisi')}
 						</span>
+					</div>
+
+					<div class="sure-alani">
+						<span class="sure-label">{$_('cihazlar.kalan_sure')}</span>
+						<span class="sure-deger font-display" class:doldu={kalan <= 0 && !cihaz.fiş_kapali}>
+							{cihaz.fiş_kapali ? $_('cihazlar.sure_doldu') : süreFormatla(kalan)}
+						</span>
+						<button class="btn-sure-ekle" on:click={() => süreEkle(cihaz)} disabled={süreEkleniyorId === cihaz.id}>
+							{$_('cihazlar.sure_ekle')}
+						</button>
 					</div>
 
 					<div class="kod-satiri">
@@ -155,6 +262,9 @@
 		color: var(--text-muted);
 		font-size: 0.92rem;
 	}
+	.muted.small {
+		font-size: 0.75rem;
+	}
 	.error {
 		color: var(--warn);
 		font-size: 0.85rem;
@@ -169,14 +279,33 @@
 	.ekle-card h2 {
 		font-size: 1.05rem;
 		font-weight: 500;
-		margin: 0 0 12px;
+		margin: 0 0 14px;
 	}
 	.ekle-card form {
 		display: flex;
-		gap: 10px;
+		flex-direction: column;
+		gap: 14px;
 	}
-	.ekle-card input {
+	.form-row {
+		display: flex;
+		gap: 12px;
+		flex-wrap: wrap;
+	}
+	.form-row label {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		font-size: 0.78rem;
+		color: var(--text-muted);
+		font-weight: 600;
 		flex: 1;
+		min-width: 140px;
+	}
+	.limit-alani {
+		max-width: 160px;
+	}
+	.ekle-card input,
+	.ekle-card select {
 		font-family: inherit;
 		font-size: 0.9rem;
 		padding: 10px 12px;
@@ -186,6 +315,7 @@
 		color: var(--text);
 	}
 	.btn-primary {
+		align-self: flex-start;
 		border: none;
 		background: var(--accent);
 		color: var(--bg-elevated);
@@ -214,10 +344,35 @@
 	}
 	.cihaz-top {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		justify-content: space-between;
 		flex-wrap: wrap;
 		gap: 8px;
+	}
+	.cihaz-kimlik {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+	.cihaz-ikon {
+		width: 34px;
+		height: 34px;
+	}
+	.cihaz-ikon-yedek {
+		width: 34px;
+		height: 34px;
+		border-radius: 999px;
+		background: var(--accent-soft);
+		color: var(--accent);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		flex-shrink: 0;
+	}
+	.cihaz-isim-satiri {
+		display: flex;
+		flex-direction: column;
 	}
 	.cihaz-adi {
 		font-size: 1.05rem;
@@ -241,6 +396,44 @@
 	}
 	.durum-badge.online .durum-nokta {
 		background: var(--accent);
+	}
+
+	.sure-alani {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		background: var(--bg);
+		border-radius: 10px;
+		padding: 10px 14px;
+		flex-wrap: wrap;
+	}
+	.sure-label {
+		font-size: 0.75rem;
+		color: var(--text-muted);
+	}
+	.sure-deger {
+		font-size: 1.1rem;
+		font-weight: 600;
+		color: var(--accent);
+	}
+	.sure-deger.doldu {
+		color: var(--warn);
+	}
+	.btn-sure-ekle {
+		margin-left: auto;
+		border: 1px solid var(--border);
+		background: var(--bg-elevated);
+		color: var(--accent);
+		border-radius: 8px;
+		padding: 6px 12px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.btn-sure-ekle:disabled {
+		opacity: 0.5;
+		cursor: default;
 	}
 
 	.kod-satiri {

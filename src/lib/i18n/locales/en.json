@@ -151,7 +151,18 @@
 		"sil": "Delete",
 		"nukste_otomatik": "Automatically cut this device on relapse",
 		"cihaz_yok": "You haven't added a device yet.",
-		"firmware_bilgi": "Once you build the physical device, use the example code in the project's /firmware/esp32-akilli-priz folder."
+		"firmware_bilgi": "Once you build the physical device, use the example code in the project's /firmware/esp32-akilli-priz folder.",
+		"kategori": "Category",
+		"kategori_oyun_konsolu": "Game Console",
+		"kategori_bilgisayar": "Computer",
+		"kategori_akilli_tv": "Smart TV",
+		"kategori_modem": "Modem",
+		"kategori_diger": "Other",
+		"gunluk_limit": "Daily time limit (minutes)",
+		"kalan_sure": "Time remaining",
+		"sure_doldu": "Time's up",
+		"sure_ekle": "+15 Min (1 coin)",
+		"sure_yetersiz_coin": "You don't have enough coins to add time."
 	},
 	"rapor": {
 		"baslik": "My Progress Report",
