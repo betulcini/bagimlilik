@@ -45,6 +45,22 @@ export function basitSesÇal(tür = 'basari') {
 	try {
 		const ctx = getAudioCtx();
 		const şimdi = ctx.currentTime;
+
+		if (tür === 'tik') {
+			// çok kısa, kısık bir tıklama sesi — her buton tıklamasında çalması için
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			osc.frequency.value = 900;
+			osc.type = 'sine';
+			gain.gain.setValueAtTime(0.0001, şimdi);
+			gain.gain.exponentialRampToValueAtTime(0.06, şimdi + 0.005);
+			gain.gain.exponentialRampToValueAtTime(0.0001, şimdi + 0.05);
+			osc.connect(gain).connect(ctx.destination);
+			osc.start(şimdi);
+			osc.stop(şimdi + 0.06);
+			return;
+		}
+
 		const notalar = tür === 'basari' ? [523.25, 659.25, 783.99] : [660];
 
 		notalar.forEach((frekans, i) => {

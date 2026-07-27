@@ -4,12 +4,23 @@
 	import { isLoading, locale } from 'svelte-i18n';
 	import { theme } from '$stores/theme';
 	import { sesEtkin } from '$stores/ses';
+	import { basitSesÇal } from '$lib/utils/ses';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 
 	onMount(() => {
 		theme.init();
 		sesEtkin.init();
+
+		function tıklamaDinleyicisi(e) {
+			const tıklanabilir = e.target.closest?.(
+				'button, a, [role="button"], [role="tab"], input[type="checkbox"], input[type="submit"]'
+			);
+			if (tıklanabilir && !tıklanabilir.disabled) basitSesÇal('tik');
+		}
+
+		document.addEventListener('click', tıklamaDinleyicisi);
+		return () => document.removeEventListener('click', tıklamaDinleyicisi);
 	});
 
 	$: if (browser && $locale) {
