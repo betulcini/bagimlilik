@@ -162,6 +162,9 @@
 		"kalan_sure": "Time remaining",
 		"sure_doldu": "Time's up",
 		"sure_ekle": "+15 Min (1 coin)",
+		"sure_ekle_kisa": "+15 Min",
+		"guc_kesildi": "Power Cut",
+		"ayarlar": "Settings",
 		"sure_yetersiz_coin": "You don't have enough coins to add time."
 	},
 	"rapor": {

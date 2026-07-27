@@ -38,6 +38,14 @@
 	let süreEkleniyorId = null;
 	let şimdi = Date.now();
 	let interval;
+	let ayarlarAçıkIdler = new Set();
+
+	function ayarlarıAçKapa(id) {
+		const yeni = new Set(ayarlarAçıkIdler);
+		if (yeni.has(id)) yeni.delete(id);
+		else yeni.add(id);
+		ayarlarAçıkIdler = yeni;
+	}
 
 	onMount(async () => {
 		interval = setInterval(() => (şimdi = Date.now()), 1000);
@@ -190,57 +198,92 @@
 			{#each cihazlar as cihaz (cihaz.id)}
 				{@const çevrimİçi = cihazÇevrimİçiMi(cihaz)}
 				{@const kalan = kalanSüreMap.get(cihaz.id) ?? 0}
+				{@const kesikMi = cihaz.fiş_kapali || kalan <= 0}
+				{@const yüzde = cihaz.limit_dakika ? Math.min(100, Math.round((kalan / (cihaz.limit_dakika * 60)) * 100)) : 0}
 				<div class="card cihaz-card">
-					<div class="cihaz-top">
-						<div class="cihaz-kimlik">
-							{#if kategoriIkon[cihaz.kategori]}
-								<img class="cihaz-ikon" src={kategoriIkon[cihaz.kategori]} alt="" />
-							{:else}
-								<span class="cihaz-ikon-yedek">{cihaz.cihaz_adı.slice(0, 1).toUpperCase()}</span>
-							{/if}
-							<div class="cihaz-isim-satiri">
-								<span class="cihaz-adi font-display">{cihaz.cihaz_adı}</span>
-								<span class="cihaz-kategori muted small">
-									{$_(kategoriI18nAnahtarı[cihaz.kategori] ?? 'cihazlar.kategori_diger')}
-								</span>
+					<div class="ring-wrapper">
+						<div
+							class="ring"
+							style="background: conic-gradient({kesikMi ? 'var(--border)' : 'var(--accent)'} {kesikMi
+								? 0
+								: yüzde}%, var(--border) 0)"
+						>
+							<div class="ring-inner">
+								{#if kategoriIkon[cihaz.kategori]}
+									<img class="cihaz-ikon-buyuk" src={kategoriIkon[cihaz.kategori]} alt="" />
+								{:else}
+									<span class="cihaz-ikon-yedek-buyuk">{cihaz.cihaz_adı.slice(0, 1).toUpperCase()}</span>
+								{/if}
 							</div>
 						</div>
-						<span class="durum-badge" class:online={çevrimİçi}>
-							<span class="durum-nokta"></span>
-							{çevrimİçi ? $_('cihazlar.cevrimici') : $_('cihazlar.cevrimdisi')}
-						</span>
 					</div>
 
-					<div class="sure-alani">
-						<span class="sure-label">{$_('cihazlar.kalan_sure')}</span>
-						<span class="sure-deger font-display" class:doldu={kalan <= 0 && !cihaz.fiş_kapali}>
-							{cihaz.fiş_kapali ? $_('cihazlar.sure_doldu') : süreFormatla(kalan)}
-						</span>
-						<button class="btn-sure-ekle" on:click={() => süreEkle(cihaz)} disabled={süreEkleniyorId === cihaz.id}>
-							{$_('cihazlar.sure_ekle')}
-						</button>
-					</div>
+					<span class="cihaz-adi-v2 font-display">{cihaz.cihaz_adı}</span>
 
-					<div class="kod-satiri">
-						<span class="kod-label">{$_('cihazlar.cihaz_kodu')}</span>
-						<code class="kod-deger">{cihaz.cihaz_kodu}</code>
-						<button class="kod-kopyala" on:click={() => koduKopyala(cihaz)}>
-							{kopyalananId === cihaz.id ? $_('cihazlar.kopyalandi') : $_('cihazlar.kopyala')}
-						</button>
-					</div>
-					<p class="kod-aciklama">{$_('cihazlar.kod_aciklama')}</p>
+					<span class="durum-badge" class:online={çevrimİçi}>
+						<span class="durum-nokta"></span>
+						{çevrimİçi ? $_('cihazlar.cevrimici') : $_('cihazlar.cevrimdisi')}
+					</span>
 
-					<label class="oto-kes-satiri">
-						<input type="checkbox" checked={cihaz.nukste_otomatik_kes} on:change={() => otomatikKesDeğiştir(cihaz)} />
-						{$_('cihazlar.nukste_otomatik')}
-					</label>
+					{#if kesikMi}
+						<p class="guc-kesildi">⚠ {$_('cihazlar.guc_kesildi')}</p>
+					{:else}
+						<p class="kalan-sure-v2">{$_('cihazlar.kalan_sure')}: {süreFormatla(kalan)}</p>
+					{/if}
 
-					<div class="cihaz-actions">
-						<button class="btn-fis" class:kesik={cihaz.fiş_kapali} on:click={() => fişiDeğiştir(cihaz)}>
+					<div class="buton-satiri">
+						<button class="btn-fis-v2" class:kesik={cihaz.fiş_kapali} on:click={() => fişiDeğiştir(cihaz)}>
 							{cihaz.fiş_kapali ? $_('cihazlar.fisi_ac') : $_('cihazlar.fisi_kes')}
 						</button>
-						<button class="btn-sil" on:click={() => sil(cihaz)}>{$_('cihazlar.sil')}</button>
+						<button
+							class="btn-sure-v2"
+							title={$_('cihazlar.sure_ekle')}
+							on:click={() => süreEkle(cihaz)}
+							disabled={süreEkleniyorId === cihaz.id}
+						>
+							{$_('cihazlar.sure_ekle_kisa')}
+						</button>
 					</div>
+
+					<button class="btn-ayarlar" on:click={() => ayarlarıAçKapa(cihaz.id)}>
+						{$_('cihazlar.ayarlar')}
+					</button>
+
+					{#if ayarlarAçıkIdler.has(cihaz.id)}
+						<div class="ayarlar-panel">
+							<label class="kategori-secim">
+								{$_('cihazlar.kategori')}
+								<select
+									value={cihaz.kategori}
+									on:change={(e) => {
+										cihazGüncelle(cihaz.id, { kategori: e.target.value }).then(
+											(güncel) => (cihazlar = cihazlar.map((c) => (c.id === güncel.id ? güncel : c)))
+										);
+									}}
+								>
+									{#each kategoriler as kategori}
+										<option value={kategori}>{$_(kategoriI18nAnahtarı[kategori])}</option>
+									{/each}
+								</select>
+							</label>
+
+							<div class="kod-satiri">
+								<span class="kod-label">{$_('cihazlar.cihaz_kodu')}</span>
+								<code class="kod-deger">{cihaz.cihaz_kodu}</code>
+								<button class="kod-kopyala" on:click={() => koduKopyala(cihaz)}>
+									{kopyalananId === cihaz.id ? $_('cihazlar.kopyalandi') : $_('cihazlar.kopyala')}
+								</button>
+							</div>
+							<p class="kod-aciklama">{$_('cihazlar.kod_aciklama')}</p>
+
+							<label class="oto-kes-satiri">
+								<input type="checkbox" checked={cihaz.nukste_otomatik_kes} on:change={() => otomatikKesDeğiştir(cihaz)} />
+								{$_('cihazlar.nukste_otomatik')}
+							</label>
+
+							<button class="btn-sil" on:click={() => sil(cihaz)}>{$_('cihazlar.sil')}</button>
+						</div>
+					{/if}
 				</div>
 			{/each}
 		</div>
@@ -332,35 +375,47 @@
 	}
 
 	.cihaz-list {
-		display: flex;
-		flex-direction: column;
-		gap: 14px;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+		gap: 16px;
 		margin-top: 20px;
 	}
 	.cihaz-card {
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
-	}
-	.cihaz-top {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		flex-wrap: wrap;
+		align-items: center;
+		text-align: center;
 		gap: 8px;
 	}
-	.cihaz-kimlik {
+
+	.ring-wrapper {
+		margin-bottom: 4px;
+	}
+	.ring {
+		width: 96px;
+		height: 96px;
+		border-radius: 999px;
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		justify-content: center;
+		transition: background 0.4s ease;
 	}
-	.cihaz-ikon {
-		width: 34px;
-		height: 34px;
+	.ring-inner {
+		width: 76px;
+		height: 76px;
+		border-radius: 999px;
+		background: var(--bg-elevated);
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
-	.cihaz-ikon-yedek {
-		width: 34px;
-		height: 34px;
+	.cihaz-ikon-buyuk {
+		width: 40px;
+		height: 40px;
+	}
+	.cihaz-ikon-yedek-buyuk {
+		width: 40px;
+		height: 40px;
 		border-radius: 999px;
 		background: var(--accent-soft);
 		color: var(--accent);
@@ -368,13 +423,10 @@
 		align-items: center;
 		justify-content: center;
 		font-weight: 700;
-		flex-shrink: 0;
+		font-size: 1.1rem;
 	}
-	.cihaz-isim-satiri {
-		display: flex;
-		flex-direction: column;
-	}
-	.cihaz-adi {
+
+	.cihaz-adi-v2 {
 		font-size: 1.05rem;
 		font-weight: 500;
 	}
@@ -398,42 +450,95 @@
 		background: var(--accent);
 	}
 
-	.sure-alani {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		background: var(--bg);
-		border-radius: 10px;
-		padding: 10px 14px;
-		flex-wrap: wrap;
-	}
-	.sure-label {
-		font-size: 0.75rem;
-		color: var(--text-muted);
-	}
-	.sure-deger {
-		font-size: 1.1rem;
+	.kalan-sure-v2 {
+		margin: 0;
+		font-size: 0.85rem;
+		color: var(--text);
 		font-weight: 600;
-		color: var(--accent);
 	}
-	.sure-deger.doldu {
+	.guc-kesildi {
+		margin: 0;
+		font-size: 0.85rem;
 		color: var(--warn);
+		font-weight: 700;
 	}
-	.btn-sure-ekle {
-		margin-left: auto;
-		border: 1px solid var(--border);
-		background: var(--bg-elevated);
-		color: var(--accent);
-		border-radius: 8px;
-		padding: 6px 12px;
-		font-size: 0.75rem;
+
+	.buton-satiri {
+		display: flex;
+		gap: 8px;
+		width: 100%;
+		margin-top: 6px;
+	}
+	.btn-fis-v2 {
+		flex: 1;
+		border: none;
+		background: #f6dcd7;
+		color: #a33d2e;
+		border-radius: 10px;
+		padding: 9px 10px;
 		font-weight: 600;
+		font-size: 0.8rem;
 		cursor: pointer;
-		white-space: nowrap;
 	}
-	.btn-sure-ekle:disabled {
+	.btn-fis-v2.kesik {
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+	.btn-sure-v2 {
+		flex: 1;
+		border: none;
+		background: var(--accent-soft);
+		color: var(--accent);
+		border-radius: 10px;
+		padding: 9px 10px;
+		font-weight: 600;
+		font-size: 0.8rem;
+		cursor: pointer;
+	}
+	.btn-sure-v2:disabled {
 		opacity: 0.5;
 		cursor: default;
+	}
+
+	.btn-ayarlar {
+		width: 100%;
+		border: 1px solid var(--border);
+		background: var(--bg);
+		color: var(--text-muted);
+		border-radius: 10px;
+		padding: 8px 10px;
+		font-size: 0.78rem;
+		font-weight: 600;
+		cursor: pointer;
+		margin-top: 4px;
+	}
+
+	.ayarlar-panel {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		margin-top: 10px;
+		padding-top: 14px;
+		border-top: 1px solid var(--border);
+		text-align: left;
+	}
+	.kategori-secim {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		font-size: 0.78rem;
+		color: var(--text-muted);
+		font-weight: 600;
+	}
+	.kategori-secim select {
+		font-family: inherit;
+		font-size: 0.85rem;
+		padding: 8px 10px;
+		border-radius: 8px;
+		border: 1px solid var(--border);
+		background: var(--bg);
+		color: var(--text);
 	}
 
 	.kod-satiri {
@@ -479,25 +584,8 @@
 		cursor: pointer;
 	}
 
-	.cihaz-actions {
-		display: flex;
-		gap: 10px;
-		margin-top: 4px;
-	}
-	.btn-fis {
-		border: none;
-		background: var(--warn);
-		color: white;
-		border-radius: 8px;
-		padding: 9px 16px;
-		font-weight: 600;
-		font-size: 0.85rem;
-		cursor: pointer;
-	}
-	.btn-fis.kesik {
-		background: var(--accent);
-	}
 	.btn-sil {
+		width: 100%;
 		border: 1px solid var(--border);
 		background: transparent;
 		color: var(--text-muted);

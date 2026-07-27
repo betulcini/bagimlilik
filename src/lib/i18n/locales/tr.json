@@ -163,6 +163,9 @@
 		"kalan_sure": "Kalan süre",
 		"sure_doldu": "Süre doldu",
 		"sure_ekle": "+15 Dk Ekle (1 coin)",
+		"sure_ekle_kisa": "+15 Dk",
+		"guc_kesildi": "Güç Kesildi",
+		"ayarlar": "Ayarlar",
 		"sure_yetersiz_coin": "Süre eklemek için yeterli coin'in yok."
 	},
 	"rapor": {
