@@ -1,8 +1,9 @@
 <script>
 	import { onDestroy } from 'svelte';
-	import { _ } from 'svelte-i18n';
+	import { _, locale } from 'svelte-i18n';
 	import { user } from '$stores/user';
 	import { seansKaydet } from '$lib/supabase/nefes';
+	import { sesliOku, sesiDurdur } from '$lib/utils/ses';
 
 	const teknikler = [
 		{
@@ -55,10 +56,16 @@
 		seçiliTeknik = null;
 	}
 
+	function fazıSeslendir() {
+		const dilKodu = $locale === 'en' ? 'en-US' : 'tr-TR';
+		sesliOku($_(`rahatla.${seçiliTeknik.fazlar[fazIndex].etiket}`), dilKodu);
+	}
+
 	function başlat() {
 		if (!seçiliTeknik || çalışıyorMu) return;
 		çalışıyorMu = true;
 		kalanSaniye = seçiliTeknik.fazlar[fazIndex].süre;
+		fazıSeslendir();
 		interval = setInterval(tik, 1000);
 	}
 
@@ -69,6 +76,7 @@
 	function seansıKaydetVeDurdur() {
 		çalışıyorMu = false;
 		if (interval) clearInterval(interval);
+		sesiDurdur();
 
 		if (geçenSaniye > 0 && $user && seçiliTeknik) {
 			seansKaydet($user.id, seçiliTeknik.id, tamamlananTur, geçenSaniye).catch(() => {
@@ -95,6 +103,7 @@
 				tamamlananTur += 1;
 			}
 			kalanSaniye = seçiliTeknik.fazlar[fazIndex].süre;
+			fazıSeslendir();
 		}
 	}
 

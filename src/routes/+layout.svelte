@@ -3,11 +3,13 @@
 	import '$lib/i18n';
 	import { isLoading, locale } from 'svelte-i18n';
 	import { theme } from '$stores/theme';
+	import { sesEtkin } from '$stores/ses';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 
 	onMount(() => {
 		theme.init();
+		sesEtkin.init();
 	});
 
 	$: if (browser && $locale) {

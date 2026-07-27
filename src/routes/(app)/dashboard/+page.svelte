@@ -15,6 +15,7 @@
 	import { getBasarimlar, getKullanıcıBasarımları, eksikRozetleriVer } from '$lib/supabase/achievements';
 	import { supabase } from '$lib/supabase/client';
 	import RozetSatiri from '$components/rozet/RozetSatiri.svelte';
+	import { basitSesÇal } from '$lib/utils/ses';
 	import { focusTrap } from '$lib/actions/focusTrap';
 
 	let habit = null;
@@ -78,6 +79,7 @@
 					kazanılmışRozetIdler = new Set(kazanılmışlar.map((k) => k.achievement_id));
 
 					if (yeniKazanılanRozetler.length > 0) {
+						basitSesÇal('basari');
 						setTimeout(() => (yeniKazanılanRozetler = []), 6000);
 					}
 

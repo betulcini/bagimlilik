@@ -5,6 +5,7 @@
 	import { supabase } from '$lib/supabase/client';
 	import ThemeToggle from '$components/ui/ThemeToggle.svelte';
 	import LangToggle from '$components/ui/LangToggle.svelte';
+	import SesToggle from '$components/ui/SesToggle.svelte';
 
 	const links = [
 		{ href: '/dashboard', key: 'nav.dashboard' },
@@ -38,6 +39,7 @@
 
 	<div class="actions">
 		<LangToggle />
+		<SesToggle />
 		<ThemeToggle />
 		<button class="logout" on:click={cikisYap}>{$_('nav.cikis')}</button>
 	</div>
