@@ -3,7 +3,8 @@
 	import { _, locale } from 'svelte-i18n';
 	import { user } from '$stores/user';
 	import { seansKaydet } from '$lib/supabase/nefes';
-	import { sesliOku, sesiDurdur } from '$lib/utils/ses';
+	import { sesliOku, sesiDurdur, ambiyansBaşlat, ambiyansDurdur } from '$lib/utils/ses';
+	import { sesEtkin } from '$stores/ses';
 
 	const teknikler = [
 		{
@@ -66,6 +67,7 @@
 		çalışıyorMu = true;
 		kalanSaniye = seçiliTeknik.fazlar[fazIndex].süre;
 		fazıSeslendir();
+		ambiyansBaşlat();
 		interval = setInterval(tik, 1000);
 	}
 
@@ -77,6 +79,7 @@
 		çalışıyorMu = false;
 		if (interval) clearInterval(interval);
 		sesiDurdur();
+		ambiyansDurdur();
 
 		if (geçenSaniye > 0 && $user && seçiliTeknik) {
 			seansKaydet($user.id, seçiliTeknik.id, tamamlananTur, geçenSaniye).catch(() => {
@@ -115,6 +118,7 @@
 	});
 
 	$: aktifFaz = seçiliTeknik ? seçiliTeknik.fazlar[fazIndex] : null;
+	$: if (!$sesEtkin) ambiyansDurdur();
 </script>
 
 <svelte:head>

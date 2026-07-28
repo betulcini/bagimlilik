@@ -28,6 +28,60 @@ export function sesiDurdur() {
 	}
 }
 
+let ambiyansNodes = null;
+
+/** Sakin, düşük sesli bir akor çalmaya başlar (nefes egzersizi gibi uzun süreli oturumlar için arka plan). */
+export function ambiyansBaşlat() {
+	if (!get(sesEtkin)) return;
+	if (typeof window === 'undefined' || ambiyansNodes) return;
+
+	try {
+		const ctx = getAudioCtx();
+		const masterGain = ctx.createGain();
+		masterGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+		masterGain.gain.exponentialRampToValueAtTime(0.045, ctx.currentTime + 2.5); // yumuşak giriş
+		masterGain.connect(ctx.destination);
+
+		const frekanslar = [130.81, 196.0, 261.63]; // C3–G3–C4, sakin bir akor
+		const osciller = frekanslar.map((freq) => {
+			const osc = ctx.createOscillator();
+			osc.type = 'sine';
+			osc.frequency.value = freq;
+			osc.connect(masterGain);
+			osc.start();
+			return osc;
+		});
+
+		ambiyansNodes = { osciller, masterGain, ctx };
+	} catch {
+		ambiyansNodes = null;
+	}
+}
+
+/** Ambiyansı yumuşakça (aniden kesmeden) durdurur. */
+export function ambiyansDurdur() {
+	if (!ambiyansNodes) return;
+	const { osciller, masterGain, ctx } = ambiyansNodes;
+	try {
+		const şimdi = ctx.currentTime;
+		masterGain.gain.cancelScheduledValues(şimdi);
+		masterGain.gain.setValueAtTime(masterGain.gain.value, şimdi);
+		masterGain.gain.linearRampToValueAtTime(0.0001, şimdi + 1); // yumuşak çıkış
+		setTimeout(() => {
+			osciller.forEach((o) => {
+				try {
+					o.stop();
+				} catch {
+					// zaten durmuş olabilir
+				}
+			});
+		}, 1100);
+	} catch {
+		// yoksay
+	}
+	ambiyansNodes = null;
+}
+
 let audioCtx;
 function getAudioCtx() {
 	if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
