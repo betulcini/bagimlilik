@@ -42,6 +42,10 @@
 		"kayit_ol_link": "Sign up",
 		"eposta_dogrulama_mesaji": "Almost done! Click the confirmation link we sent to your email, then you can log in. If it doesn't arrive, check your spam/junk folder.",
 		"sifre_min_uyari": "Password must be at least 6 characters.",
+		"kvkk_metni_once": "I have read and accept the",
+		"kvkk_link": "Privacy Notice (KVKK)",
+		"kvkk_metni_sonra": ".",
+		"kvkk_uyari": "You need to accept the Privacy Notice (KVKK) to continue.",
 		"kullanici_adi_placeholder": "e.g. betul123",
 		"gonderiliyor": "Sending..."
 	},

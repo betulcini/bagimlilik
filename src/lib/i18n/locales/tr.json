@@ -42,6 +42,10 @@
 		"kayit_ol_link": "Kayıt ol",
 		"eposta_dogrulama_mesaji": "Kayıt neredeyse tamam! E-postana gönderdiğimiz doğrulama linkine tıkla, sonra giriş yapabilirsin. Mail gelmezse spam/gereksiz kutunuzu kontrol etmeyi unutmayın.",
 		"sifre_min_uyari": "Şifre en az 6 karakter olmalı.",
+		"kvkk_metni_once": "",
+		"kvkk_link": "KVKK Aydınlatma Metni'ni",
+		"kvkk_metni_sonra": "okudum ve kabul ediyorum.",
+		"kvkk_uyari": "Devam etmek için KVKK Aydınlatma Metni'ni kabul etmen gerekiyor.",
 		"kullanici_adi_placeholder": "örn. betul123",
 		"gonderiliyor": "Gönderiliyor...",
 		"davetle_geldin": "Bir arkadaşının davetiyle geldin, kayıt olunca ikiniz de bonus kazanacaksınız."

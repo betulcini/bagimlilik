@@ -13,6 +13,7 @@
 	let gönderiliyor = false;
 	let hata = '';
 	let epostaDoğrulamaBekleniyor = false;
+	let kvkkOnay = false;
 
 	let davetKodu = '';
 	onMount(() => {
@@ -23,6 +24,10 @@
 		hata = '';
 		if (şifre.length < 6) {
 			hata = $_('auth.sifre_min_uyari');
+			return;
+		}
+		if (!kvkkOnay) {
+			hata = $_('auth.kvkk_uyari');
 			return;
 		}
 		gönderiliyor = true;
@@ -85,9 +90,18 @@
 					<input type="password" bind:value={şifre} minlength="6" required />
 				</label>
 
+				<label class="kvkk-satiri">
+					<input type="checkbox" bind:checked={kvkkOnay} />
+					<span>
+						{$_('auth.kvkk_metni_once')}
+						<a href="/kvkk" target="_blank" rel="noopener">{$_('auth.kvkk_link')}</a>
+						{$_('auth.kvkk_metni_sonra')}
+					</span>
+				</label>
+
 				{#if hata}<p class="error">{hata}</p>{/if}
 
-				<button class="btn-primary" type="submit" disabled={gönderiliyor}>
+				<button class="btn-primary" type="submit" disabled={gönderiliyor || !kvkkOnay}>
 					{gönderiliyor ? $_('auth.gonderiliyor') : $_('auth.kayit_buton')}
 				</button>
 			</form>
@@ -151,6 +165,26 @@
 		font-size: 0.85rem;
 		font-weight: 600;
 		margin: -12px 0 20px;
+	}
+
+	.kvkk-satiri {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		flex-direction: row;
+		font-size: 0.8rem;
+		font-weight: 400;
+		color: var(--text-muted);
+		cursor: pointer;
+	}
+	.kvkk-satiri input {
+		margin-top: 2px;
+		flex-shrink: 0;
+	}
+	.kvkk-satiri a {
+		color: var(--accent);
+		font-weight: 600;
+		text-decoration: underline;
 	}
 
 	form {
